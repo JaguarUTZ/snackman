@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><script src="/hub/observe.js"></script><meta charset="utf-8">
+<!doctype html><html lang="en"><head><script src="../../shared/hub/observe.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Snackman · Title</title>
@@ -17,7 +17,7 @@ img{width:min(60vw,38vh);image-rendering:pixelated}
 .sel a:hover,.sel a:focus{border-color:#FFD400;color:#FFD400}
 .lk{opacity:.45;border-style:dashed!important}
 </style>
-<script src="../../emu/cart.js"></script>
+<script src="../../shared/emu/cart.js"></script>
 </head><body><main>
 <div class="logo">SNACKMAN</div>
 <img src="a/snackman.gif" alt="Snackman: a yellow Pac-Man with a green hard hat">
@@ -26,7 +26,7 @@ img{width:min(60vw,38vh);image-rendering:pixelated}
 <nav class="sel" aria-label="Stage select">STAGE SELECT<a href="prologue.html">PROLOGUE · PUT A BID ON PLASTIC</a><a href="levels.html?level=0">LV1 👩 SORT + WASH</a><a href="levels.html?level=1">LV2 🎺 WAH WAH</a><a href="levels.html?level=2">LV3 🏪 PARTNER CHAIN</a><a class="lk" href="#" onclick="return false" title="Beat levels 1-3 to unlock">🔒 MASTER LEVEL</a><a href="bonus3d.html">BONUS · SNACKMAN 3D</a></nav>
 <p class="tag" style="color:#666;font-size:7px">© HOWARD WOODS INTERACTIVE · ECOALQUIMIA</p>
 </main>
-<script src="/hub/save.js"></script><script>
+<script src="../../shared/hub/save.js"></script><script>
 let dest='prologue.html';const go=()=>location.href=dest;
 HWSave.load('snackman').then(s=>{if(!s)return;const b=document.getElementById('go'),m=document.querySelector('.lk');
  if(s.level>0||s.score>0){dest='levels.html?resume=1';b.textContent='▶ CONTINUE '+(s.level>=3?'MASTER LEVEL':'LV'+(s.level+1))}
@@ -34,4 +34,4 @@ HWSave.load('snackman').then(s=>{if(!s)return;const b=document.getElementById('g
  if(s.best)document.querySelector('.tag').insertAdjacentHTML('afterend','<p class="tag" style="color:#FFD400">HIGH SCORE '+(+s.best).toLocaleString()+' SATS</p>')});document.getElementById('go').onclick=go;
 addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&document.activeElement.tagName!=='A'){e.preventDefault();go()}});
 window.EMU={title:'SNACKMAN',start:go};EMUCART.title('SNACKMAN');
-</script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script><script src="/hub/clicks.js" data-game="snackman"></script></body></html>
+</script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body></html>
