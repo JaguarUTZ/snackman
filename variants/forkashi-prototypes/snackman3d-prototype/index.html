@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>SNACKMAN 3D · Put a bid on plastic (prototype)</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0b0b">
+<meta name="description" content="Snackman 3D prototype: eat the plastic along the river, then sort it by resin code and build your own processing line.">
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#0b0b0b;color:#f2f2f2;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+#stage{position:relative;flex:1 1 auto;min-height:0;touch-action:none}
+#stage canvas{display:block;width:100%;height:100%}
+.px{font-family:"Press Start 2P",ui-monospace,monospace;letter-spacing:.5px}
+#hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;padding:max(8px,env(safe-area-inset-top)) 10px 0;pointer-events:none;gap:8px}
+#hud .box{background:rgba(0,0,0,.62);border:2px solid #FFD400;border-radius:8px;padding:6px 8px;font-size:10px;line-height:1.6;pointer-events:auto}
+#hud b{color:#FFD400}#phase{color:#58D854}
+.ill{color:#FC9838;font-size:8px}
+#bar{height:6px;background:#333;border-radius:3px;margin-top:4px;overflow:hidden;width:130px}#bar i{display:block;height:100%;width:0;background:#58D854}
+#held{position:absolute;left:50%;transform:translateX(-50%);bottom:max(12px,env(safe-area-inset-bottom));background:rgba(0,0,0,.72);border:2px solid #58D854;border-radius:10px;padding:8px 12px;font-size:10px;text-align:center;display:none;max-width:92%}
+#held .code{font-size:18px;color:#FFD400}
+#toast{position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);font-size:14px;text-align:center;color:#FFD400;text-shadow:3px 3px 0 #000;pointer-events:none;opacity:0;transition:opacity .25s;width:90%}
+#over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.72);gap:14px;text-align:center;padding:20px;z-index:5}
+#over h1{margin:0;font-size:22px;color:#FFD400;line-height:1.4}
+#over p{margin:0;max-width:440px;font-size:14px;line-height:1.5;color:#ddd}
+.btn{font:inherit;font-weight:800;border:0;border-radius:999px;padding:14px 22px;background:#FFD400;color:#000;cursor:pointer;font-size:15px}
+.btn.g{background:#58D854}.btn.s{background:#222;color:#fff;font-size:12px;padding:9px 14px}
+#tools{position:absolute;right:10px;bottom:max(10px,env(safe-area-inset-bottom));display:flex;gap:6px;z-index:3}
+#panel{flex:0 0 auto;background:#111;border-top:3px solid #FFD400;overflow:auto;display:none;padding:10px 12px 14px;font-size:12px;line-height:1.45;height:42vh}
+#panel h2{margin:0 0 4px;font-size:12px;color:#FFD400}
+#panel table{width:100%;border-collapse:collapse;margin:6px 0}#panel td{padding:3px 4px;border-bottom:1px solid #222;vertical-align:middle}#panel td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+#diag svg{width:100%;height:auto;display:block;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:8px}
+.small{font-size:10px;color:#9a9a9a}
+body.p2 #panel{display:block}
+@media (min-width:900px){#app{flex-direction:row}body.p2 #panel{height:auto;width:380px;border-top:0;border-left:3px solid #FFD400}}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<!-- click-counters 2026-09-28 -->
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>(function(){if(window.__vaClk)return;window.__vaClk=1;var last='',lt=0;document.addEventListener('click',function(e){try{var t=e.target&&e.target.closest&&e.target.closest('a,button,[data-track],[role="button"],input[type="submit"],input[type="button"],summary');if(!t||t.closest('[data-d],.pad,#pad,[data-va-skip]'))return;var l=(t.getAttribute('data-track')||t.getAttribute('aria-label')||t.textContent||t.value||t.getAttribute('title')||'').replace(/\s+/g,' ').trim().slice(0,80)||t.tagName.toLowerCase();var h=(t.getAttribute('href')||'').split('?')[0].slice(0,200);var k=l+'|'+h,n=Date.now();if(k===last&&n-lt<1000)return;last=k;lt=n;window.va('event',{name:'click',data:{label:l,href:h}})}catch(_){}},true);})();</script>
+</head>
+<body>
+<div id="app">
+ <div id="stage">
+  <div id="hud" class="px">
+   <div class="box"><div id="phase">PHASE 1 · THE BID</div><div><b id="kg">0.0</b> KG EATEN <span class="ill">ILLUSTRATION</span></div><div id="bar"><i></i></div></div>
+   <div class="box" style="text-align:right"><div>₿ <b id="btc">0</b></div><div class="small px" style="font-size:8px">SWIPE / ARROWS</div></div>
+  </div>
+  <div id="held" class="px"></div>
+  <div id="toast" class="px"></div>
+  <div id="tools"><button class="btn s" id="camBtn" type="button">CAM: TOP</button><button class="btn s" id="sndBtn" type="button">🔊</button><button class="btn s" id="skipBtn" type="button">SKIP ▸ SORT</button></div>
+  <div id="over">
+   <h1 class="px">SNACKMAN 3D</h1>
+   <p><b>Phase 1 · The bid:</b> roll along the Motagua and eat all the plastic. <b>Phase 2 · Sorting:</b> the plastic arrives by resin code. Carry each piece to its line and build your own processing plant.</p>
+   <p class="small">Swipe on the game (phone) or use arrow keys / WASD. Prototype. All numbers are ILLUSTRATION.</p>
+   <button class="btn" id="startBtn" type="button">▶ TAP TO PLAY</button>
+  </div>
+ </div>
+ <aside id="panel" aria-label="Factory layout calculator">
+  <h2 class="px">FACTORY LAYOUT</h2>
+  <div class="small">Built live from what you sort. <b style="color:#FC9838">ILLUSTRATION</b>: example scaling only; real stream data comes later.</div>
+  <table id="tally"></table>
+  <div id="scale" class="small"></div>
+  <div id="diag"></div>
+  <div class="small" id="assump" style="margin-top:8px"></div>
+ </aside>
+</div>
+<script type="module" src="game.js"></script>
+</body>
+</html>

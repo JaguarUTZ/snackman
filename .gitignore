@@ -1,0 +1,21 @@
+# Secrets / env (never commit)
+.env
+.env.*
+*.pem
+*.key
+.vercel/
+.replit
+replit.nix
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+# Tooling
+node_modules/
+__pycache__/
+*.log
+# Large source media kept off-repo (see docs/inventory.md)
+*.mp4
+*.mov

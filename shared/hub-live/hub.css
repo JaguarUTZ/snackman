@@ -1,0 +1,26 @@
+.hw-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Poppins,system-ui,sans-serif}
+.hw-card{position:relative;width:min(420px,100%);max-height:92vh;overflow:auto;background:#141428;color:#f5f2e8;border:2px solid #FFD400;border-radius:6px;box-shadow:8px 8px 0 #000;padding:20px 20px 18px}
+.hw-card h2{font:400 14px/1.6 'Press Start 2P',monospace;color:#FFD400;margin:0 30px 10px 0}
+.hw-card p{font-size:13px;line-height:1.5;margin:0 0 12px;color:#d9d5c7}
+.hw-card label{display:block;font-size:12px;font-weight:600;margin:10px 0 4px}
+.hw-card input,.hw-card textarea{width:100%;box-sizing:border-box;padding:10px;border-radius:4px;border:1px solid #555;background:#0b0b0b;color:#fff;font:14px Poppins,system-ui,sans-serif}
+.hw-card textarea{min-height:90px;resize:vertical}
+.hw-btn{display:inline-block;margin-top:14px;background:#FFD400;color:#000;border:0;border-radius:3px;box-shadow:3px 3px 0 #000;padding:10px 14px;font:400 11px 'Press Start 2P',monospace;cursor:pointer;text-decoration:none}
+.hw-btn[disabled]{opacity:.6;cursor:wait}
+.hw-x{position:absolute;top:8px;right:10px;background:none;border:0;color:#aaa;font-size:22px;cursor:pointer}
+.hw-err{color:#FF6B6B;font-size:12px;min-height:16px;margin-top:8px}
+.hw-small{font-size:11px!important;color:#9a968a!important;margin-top:12px!important}
+.hw-stars{display:flex;gap:6px;margin-top:4px}
+.hw-stars button{flex:1;padding:8px 0;background:#0b0b0b;border:1px solid #555;border-radius:4px;color:#FFD400;font-size:20px;cursor:pointer}
+.hw-stars button.on{background:#FFD400;color:#000;border-color:#FFD400}
+.hw-fab{position:fixed;left:12px;bottom:12px;z-index:2147482000;background:#FFD400;color:#000;border:2px solid #000;border-radius:4px;box-shadow:3px 3px 0 #000;padding:8px 10px;font:400 9px 'Press Start 2P',monospace;cursor:pointer;opacity:.92}
+.hw-fab:hover{opacity:1}
+.hw-user-fab{bottom:50px;background:#39c2ff}
+.hw-userbar{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin:12px auto 0;font:400 9px/1.8 'Press Start 2P',monospace;color:#bff4ff}
+.hw-userbar button{font:inherit;background:#000;color:#FFD400;border:1px solid #FFD400;border-radius:3px;padding:6px 8px;cursor:pointer}
+.hw-locked{filter:grayscale(1) brightness(.55)}
+.hw-lockbadge{flex:none;background:#000;color:#FFD400;border:1px solid #FFD400;padding:5px 6px;border-radius:3px;font:400 8px 'Press Start 2P',monospace}
+@media(max-width:560px){ /* phones: keep the badge + feedback buttons small and in the bottom corners, off the game's d-pad */
+.hw-fab{bottom:18px;padding:6px 8px;font-size:8px;box-shadow:2px 2px 0 #000;opacity:.88}
+.hw-user-fab{left:auto;right:8px;bottom:50px}
+.hw-fab:not(.hw-user-fab){left:auto;right:8px}} /* bottom-left is the shared click counter */

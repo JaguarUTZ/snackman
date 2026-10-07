@@ -1,0 +1,18 @@
+/* Howard Woods emulator shell: minimal frame, game fills the screen */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#050505;overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+body{display:flex;flex-direction:column;font:400 9px/1 'Press Start 2P',ui-monospace,monospace;color:#9a9a9a}
+#emubar{flex:none;display:flex;align-items:center;gap:6px;padding:max(6px,env(safe-area-inset-top)) 8px 6px;background:#0d0d0d;border-bottom:2px solid #1c1c1c}
+#emubar a,#emubar button{font:inherit;color:#d8d8d8;background:#161616;border:2px solid #2c2c2c;border-radius:4px;padding:7px 8px;cursor:pointer;text-decoration:none;white-space:nowrap}
+#emubar a:hover,#emubar button:hover{border-color:#FFD400;color:#FFD400}
+#emubar #emustart{color:#000;background:#FFD400;border-color:#FFD400}
+#emubar .t{flex:1;text-align:center;color:#666;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#emubar .led{display:inline-block;width:7px;height:7px;border-radius:50%;background:#e03131;box-shadow:0 0 6px #e03131;margin-right:6px;vertical-align:0}
+#emuscr{flex:1;min-height:0;position:relative;background:#000}
+#emuscr iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+#emuboot{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#000;color:#FFD400;text-align:center;padding:20px;transition:opacity .35s}
+#emuboot .l1{font-size:clamp(10px,2.6vw,16px);line-height:1.8;text-shadow:3px 3px 0 #b3261e}
+#emuboot .l2{font-size:8px;color:#5CC97B;letter-spacing:2px}
+#emuboot.off{opacity:0;pointer-events:none}
+body.fs #emubar{display:none}
+@media (max-width:520px){#emubar .t{display:none}#emubar{justify-content:flex-start}#emubar a,#emubar button{padding:7px 6px}#emubar #emustart{margin-left:auto}}

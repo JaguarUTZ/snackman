@@ -1,0 +1,127 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Snackman · Levels</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}html,body{background:#000;color:#fcfcfc;height:100%;overflow:hidden}
+body{font-family:"Press Start 2P",ui-monospace,monospace;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+@keyframes rmpzin{from{transform:scale(.6);opacity:0}}
+/* ---- verbatim game styles from forkashi-progress/h-7bf7bd38e8/index.html ---- */
+#gm{position:fixed;inset:0;z-index:120;background:#07071a;display:flex;flex-direction:column;align-items:center;height:100vh;height:100dvh;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;padding-top:env(safe-area-inset-top)}
+#gm[hidden]{display:none!important}
+#gmhud{position:relative;z-index:6;width:100%;max-width:720px;display:flex;align-items:center;gap:6px;padding:8px 8px 4px;font-size:8px}
+#gmlv{flex:1;color:#ffd400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#gmsc{color:#fcfcfc;white-space:nowrap}#gmli{color:#ffd400;letter-spacing:1px;white-space:nowrap}
+#gmhud button{font:inherit;font-size:8px;color:#fcfcfc;background:#000;border:2px solid #fcfcfc;padding:6px 6px;cursor:pointer}
+#gmhud #gmpz{border-color:#fc9838;color:#fc9838}
+#gmx{width:100%;max-width:720px;padding:2px 10px 4px;font-size:8px;color:#c9ced6;white-space:nowrap;overflow:hidden;min-height:16px;display:flex;align-items:center;gap:6px}
+#gmx .bar{display:inline-block;width:120px;height:8px;border:1px solid #fff;vertical-align:middle}#gmx .bar i{display:block;height:100%}
+#gmx .ex{color:#9aa0a8;border:1px solid #666;padding:1px 3px;font-size:6px}
+#gmwrap{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;position:relative}
+#gmc{display:block;border:3px solid #2121de;border-radius:6px;box-shadow:0 0 0 3px #000,0 0 24px #2121de55;image-rendering:pixelated}
+#gmpad{display:grid;grid-template-columns:repeat(3,62px);grid-template-rows:repeat(3,56px);gap:5px;padding:6px 0 calc(12px + env(safe-area-inset-bottom))}
+#gmpad button{font:inherit;font-size:18px;color:#ffd400;background:#0b0b22;border:3px solid #2121de;border-radius:10px;touch-action:none}
+#gmpad button.on,#gmpad button:active{background:#2121de;color:#fff}
+#gmpad .u{grid-area:1/2}#gmpad .l{grid-area:2/1}#gmpad .r{grid-area:2/3}#gmpad .d{grid-area:3/2}
+#gmkeys{font-size:8px;color:#8888cc;padding:8px 0 12px;display:none}
+@media (hover:hover) and (pointer:fine){#gmpad{display:none}#gmkeys{display:block}}
+#gmcard{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(4,4,20,.78)}
+#gmcard[hidden]{display:none!important}
+.gmc-box{max-width:520px;width:100%;max-height:100%;overflow:auto;touch-action:pan-y;background:#000;border:4px solid #ffd400;box-shadow:0 0 0 4px #000,8px 8px 0 #b05000;padding:20px 16px;text-align:center;animation:rmpzin .25s steps(4)}
+.gmc-k{font-size:10px;color:#ffb8ff;margin-bottom:12px;line-height:1.6}
+.gmc-h{font-weight:400;font-size:clamp(16px,5.4vw,26px);line-height:1.35;color:#ffd400;text-shadow:3px 3px 0 #b05000;margin-bottom:14px}
+.gmc-t{font-size:clamp(10px,3vw,12px);line-height:1.9;color:#e8e8ff;margin-bottom:12px}.gmc-t .y{color:#ffd400;font-weight:400}
+.gmc-x{font-size:9px;line-height:2;color:#c9ced6;margin-bottom:12px}.gmc-x small{display:block;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;color:#9a9ad0;margin-top:6px}.gmc-x .o{color:#fc9838}
+.gmc-c{font-size:8px;color:#6fe7ff;margin-bottom:14px}
+.gmc-b{display:grid;gap:10px}
+.gmc-b a,.gmc-b button{display:block;font:inherit;font-size:clamp(10px,3.2vw,13px);padding:14px 10px;border:0;cursor:pointer;text-decoration:none;color:#000;background:#fcfcfc;box-shadow:4px 4px 0 #555}
+.gmc-b .go{background:#3fe36a;box-shadow:4px 4px 0 #0b6b22;font-size:clamp(12px,3.8vw,15px)}
+.gmc-b .pitch{background:#ffb8ff;box-shadow:4px 4px 0 #8a3a80}
+.gmc-b a:active,.gmc-b button:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+#gmcard.over .gmc-box{border-color:#ff5a5a}#gmcard.over .gmc-k{color:#ff5a5a}
+#gmcard.clear .gmc-box,#gmcard.win .gmc-box{border-color:#3fe36a}
+#gmcard.unlock .gmc-box{border-color:#ffd400;animation:rmpzin .25s steps(4),unl 1s steps(2) infinite}#gmcard.unlock .gmc-h{font-size:clamp(18px,6.2vw,30px)}
+@keyframes unl{50%{box-shadow:0 0 0 4px #000,8px 8px 0 #b05000,0 0 40px #ffd400}}
+#gmcard.end .gmc-h{color:#3fe36a;text-shadow:3px 3px 0 #0b6b22}
+#gmcard.pz .gmc-box{border-color:#fc9838}#gmcard.pz .gmc-k{color:#ff5a5a}
+/* ---- emulator tweaks ---- */
+.dp{display:flex;align-items:flex-end;justify-content:center;gap:14px;margin:4px 0 8px}
+.dp-tk{display:flex;flex-wrap:wrap;gap:4px 9px;align-items:center;max-width:220px;font-size:11px;color:#9aa0a8}.dp-tk .now{color:#3fe36a;font-size:16px}.dp-tk .neg{color:#ff5a5a;font-size:18px}.dp-tk em{flex-basis:100%;font-style:normal;font-size:6px;color:#9aa0a8;border:1px solid #666;padding:2px}
+.dp-bin{position:relative;display:inline-block;width:46px;height:84px;border:3px solid #fcfcfc;border-top-width:6px;border-radius:0 0 6px 6px;background:#0b0b22;overflow:hidden}.dp-bin i{position:absolute;left:0;right:0;bottom:0;transition:height .25s steps(3)}.dp-bin b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:400;color:#fff;text-shadow:1px 1px 0 #000}
+.dp-v{display:block;font-size:10px;line-height:1.8;color:#fcfcfc}.dp-kg{font-size:9px;color:#ffd400;margin-bottom:6px}.dp-r{display:block;font-size:8px;color:#9a9ad0}.dp-f{display:block;font:11px/1.5 ui-monospace,Menlo,Consolas,monospace;color:#ffb8ff;margin-top:10px;border-top:1px dashed #555;padding-top:8px}
+#gmcard.depot .gmc-box{border-color:#6fe7ff}#gmcard.depot .gmc-h{font-size:clamp(22px,7vw,34px)}
+#gmcard.dpo .gmc-h{color:#ff5a5a;text-shadow:3px 3px 0 #500;font-size:clamp(28px,9vw,44px);animation:dpo .5s steps(2) 3}@keyframes dpo{50%{transform:scale(1.15)}}
+.gmc-x .ex{color:#9aa0a8;border:1px solid #666;padding:1px 3px;font-size:6px}
+/* ---- snackman-ux: phone-first HUD, WATCH button, captions, big pad, icon rows ---- */
+#gmhud{font-size:10px;gap:8px;padding:10px 10px 4px}#gmhud button{font-size:10px;padding:10px 10px;min-height:40px}
+#gmhud #gmw{border-color:#6fe7ff;color:#6fe7ff}#gmhud #gmw.on{background:#6fe7ff;color:#000}
+#gmli{font-size:12px;color:#3fe36a}#gmli.lo{color:#ff5a5a;animation:unl 1s steps(2) infinite}
+#gmx{font-size:10px;min-height:24px;color:#fcfcfc}#gmx .bar{width:70px;height:10px}
+#gmcap{position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:4;width:max-content;max-width:94%;text-align:center;font-size:clamp(11px,3.4vw,15px);line-height:1.6;color:#000;background:#ffd400;border:3px solid #000;box-shadow:4px 4px 0 #b05000;padding:10px 12px}
+#gmcap[hidden]{display:none}#gmcap.pop{animation:rmpzin .3s steps(4)}
+#gmpad{grid-template-columns:repeat(3,76px);grid-template-rows:repeat(3,64px);gap:6px}#gmpad button{font-size:24px}
+.gmc-t .ic{display:block;font-size:clamp(28px,9vw,44px);line-height:1.3;margin:2px 0 8px;letter-spacing:2px}
+#gmcard.intro .gmc-h,#gmcard.take .gmc-h{font-size:clamp(14px,4.8vw,22px);line-height:1.5}
+.gmc-b{grid-template-columns:1fr}.gmc-b button,.gmc-b a{min-height:52px}
+#gmcard.intro .gmc-b{grid-template-columns:1fr 1fr}#gmcard.intro .gmc-b .alt{background:#6fe7ff;box-shadow:4px 4px 0 #1a6a80}
+#gmx .hp{color:#ff5a5a;letter-spacing:1px}#gmx .hp i{color:#333;font-style:normal}#gmx .w0{color:#000;background:#6fe7ff;padding:2px 4px}
+.gmc-x .sc{display:block;font-size:12px;line-height:1.9}.gmc-x .pl{color:#3fe36a;font-size:14px}.gmc-x .w0{color:#6fe7ff;font-size:14px}.gmc-x .dim{color:#777;font-size:9px}
+#gm{background:#000}#gmx2,#gmsnd{display:none}#snd{display:none}
+</style>
+<script src="../../emu/cart.js"></script>
+</head><body>
+<button id="snd" type="button" aria-pressed="false">♪ OFF</button>
+<div id="gm" role="dialog" aria-modal="true" aria-label="Snackman: the levels" hidden>
+ <div id="gmhud"><span id="gmlv">SNACKMAN</span><span id="gmsc">0 SATS</span><span id="gmli" aria-label="Time left">⏱ 30</span><button type="button" id="gmw" title="Autoplay">▶ WATCH</button><button type="button" id="gmsnd" aria-pressed="false" title="Sound">♪ OFF</button><button type="button" id="gmpz" title="Pause">❚❚</button><button type="button" id="gmx2" title="Back to the story">✕</button></div>
+ <div id="gmx"></div>
+ <div id="gmwrap"><canvas id="gmc" width="330" height="270" aria-label="Snackman maze"></canvas><div id="gmcap" hidden aria-live="polite"></div></div>
+ <div id="gmpad" aria-label="Direction pad"><button type="button" class="u" data-d="U" aria-label="Up">▲</button><button type="button" class="l" data-d="L" aria-label="Left">◀</button><button type="button" class="r" data-d="R" aria-label="Right">▶</button><button type="button" class="d" data-d="D" aria-label="Down">▼</button></div>
+ <p id="gmkeys">ARROWS / WASD / SWIPE · ▶ WATCH = AUTOPLAY</p>
+ <div id="gmcard" hidden><div class="gmc-box"></div></div>
+</div>
+<script>
+/* sound helpers (verbatim from the Roadmap v2 page; the level engine calls snd/AC/beep/play) */
+let snd=false,AC=null,buf={};
+function ensureAC(){if(AC)return;AC=new (window.AudioContext||window.webkitAudioContext)();const ext=new Audio().canPlayType('audio/ogg; codecs="vorbis"')?'ogg':'m4a';['plop','hit'].forEach(n=>fetch('a/snackman-'+n+'.'+ext).then(r=>r.arrayBuffer()).then(b=>AC.decodeAudioData(b)).then(d=>buf[n]=d).catch(()=>{}))}
+function play(n,v){if(!snd||!AC||!buf[n])return;const s=AC.createBufferSource(),g=AC.createGain();g.gain.value=v||.7;s.buffer=buf[n];s.connect(g).connect(AC.destination);s.start()}
+function beep(f,d,when,type,v){if(!snd||!AC)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+(when||0);o.type=type||'square';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v||.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)}
+document.getElementById('snd').onclick=()=>{snd=!snd;if(snd){ensureAC();AC.resume&&AC.resume();beep(784,.1);beep(1047,.12,.1)}};
+/* sound on at first tap/key, like a console */
+const unlock=()=>{if(!snd)document.getElementById('snd').click();removeEventListener('pointerdown',unlock,true);removeEventListener('keydown',unlock,true)};
+addEventListener('pointerdown',unlock,true);addEventListener('keydown',unlock,true);
+</script>
+<script src="levels.js"></script>
+<script>
+const q=new URLSearchParams(location.search),lv=q.get('level');
+document.getElementById('gm').hidden=false;
+/* Per-user server save (hw_user login, /api/save; see SAVE_API.md). Saved on meaningful events (level start, every few
+   items, hits, clear/fail, depot choice, Master unlock), throttled to one upload per 4 s, and flushed on page hide.
+   State: {level,score} = furthest checkpoint, best, master, choice (depot record), cur = mid-level snapshot for resume.
+   The parent Snackman page (hub/game.js) shows the player badge; this frame reports its save status to it. */
+const GAP=4000;let S={},V=0,pend=false,last=0,tm=null,busy=false,lastAt=null,mode='loading';
+const badge=()=>{try{const H=parent!==window&&parent.HW;H&&H.onSave&&H.onSave({mode,dirty:pend||busy,frozen:false,lastAt,saveNow:()=>{pend=true;return put(false)}})}catch(e){}};
+function put(keep){if(!pend||busy||mode!=='server')return Promise.resolve(false);pend=false;busy=true;last=Date.now();badge();
+ return fetch('/api/save',{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'same-origin',keepalive:!!keep,body:JSON.stringify({game:'snackman',base:V,state:S})})
+  .then(r=>r.json().catch(()=>({})).then(j=>{if(r.status===200){V=j.v;lastAt=j.at;return true}if(r.status===409){V=j.v;pend=true;return false}if(r.status===401||r.status===403)mode='local';return false}))
+  .catch(()=>{pend=true;return false}).then(ok=>{busy=false;badge();if(pend)queue();return ok})}
+function queue(){pend=true;badge();if(tm)return;tm=setTimeout(()=>{tm=null;put(false)},Math.max(0,GAP-(Date.now()-last)))}
+addEventListener('pagehide',()=>{if(pend){clearTimeout(tm);tm=null;busy=false;put(true)}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&pend){clearTimeout(tm);tm=null;put(true)}});
+window.SnackSave={flush:()=>{clearTimeout(tm);tm=null;return put(false)},get state(){return S},get v(){return V},get mode(){return mode}};
+fetch('/api/save?game=snackman',{credentials:'same-origin',cache:'no-store'}).then(r=>r.json().catch(()=>({})).then(j=>{mode=r.status===200?'server':'local';return j})).catch(()=>({}))
+.then(j=>{V=j.v||0;S=(j&&j.state)||{};badge();
+ SnackGame.rec=S.choice||null;
+ SnackGame.onSave=s=>{const far=s.level>=(S.level||0),c=S.choice||{n:0,cash:0,hoard:0,over:0,net:0};
+  if(s.choice){c.n++;c[s.choice.r]=(c[s.choice.r]||0)+1;c.net+=s.choice.v;c.last=s.choice;SnackGame.rec=c}
+  S={level:far?s.level:S.level,score:far?s.score:S.score,best:Math.max(S.best||0,s.score||0,(s.cur&&s.cur.score)||0),master:!!(S.master||s.master),choice:c,cur:s.cur||null,ev:s.ev||'',at:Date.now()};queue()};
+ const cur=S.cur;
+ if(q.has('resume')&&cur&&cur.li!=null)SnackGame.open({level:cur.li,score:cur.lvStart||0,mid:cur,from:'resume_mid'});
+ else if(q.has('resume')&&S.level!=null)SnackGame.open({level:S.level,score:S.score||0,from:'resume'});
+ else SnackGame.open(lv!=null&&(/^[0-2]$/.test(lv)||(lv==='3'&&S.master))?{level:+lv,from:'shelf'}:{fresh:true,from:'shelf'});
+});
+const key=k=>dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));
+window.EMU={title:'SNACKMAN · LEVELS',ownPause:true,pause(){key('p')},resume(){key('p')},
+ start(){const b=document.querySelector('#gmcard:not([hidden]) .go')||document.querySelector('#gmcard:not([hidden]) button');if(b)b.click();else key('p')}};
+EMUCART.title(EMU.title);
+</script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script><script src="/hub/clicks.js" data-game="snackman"></script></body></html>
