@@ -131,7 +131,9 @@ function final(){setState('end');va('master_win');
  [523,659,784,1047,1319,1568,2093].forEach((f,k)=>B(f,.16,k*.1,'square',.06));confetti();
  card({cls:'end',k:'MASTER LEVEL CLEAR · YOU WON',h:'BID PLASTIC, CLEAN THE RIVER, FIX THE MONEY, FIX THE WORLD.',
   t:'<span class="ic">🧴 → 🧱 🛢️ ⚡ → 🛒</span>Plastic in: products, oil, energy and shopping credit out.',x:'FINAL SCORE '+fmt(score)+' SATS (GAME SATS ARE PRETEND)',
-  b:[['BONUS: SNACKMAN 3D ▶','bonus3d.html','go'],['↺ PLAY AGAIN',()=>{score=0;lvStart=0;startLevel(0)},'alt'],['◀ TITLE SCREEN','title.html','alt']]})}
+  b:[['BONUS: SNACKMAN 3D ▶','bonus3d.html','go'],['↺ PLAY AGAIN',()=>{score=0;lvStart=0;startLevel(0)},'alt'],['◀ TITLE SCREEN','title.html','alt']]})
+ /* kit hooks: signed finish badge + tip jar (guarded; no-op if kit.js did not load) */
+ try{const fs=score;if(window.SnackKit)SnackKit.endBlock($('gmcard').querySelector('.gmc-box'),()=>'Beat the Master Level ('+fmt(fs)+' pts)')}catch(e){}}
 function showIntro(){setState('intro');
  card({cls:'intro',k:L.kick+' · ⏱ 30s',h:L.line,t:'<span class="ic">'+L.icons+'</span>'+(L.key==='wah'?'<b class="y">🚫 ×'+pile+' FROM LEVEL 1</b>':''),c:L.hint+' · AVOID '+L.ghost[0],
   b:[['▶ PLAY',()=>{hideCard();setState('ready');B(523,.08);B(784,.1,.08)},'go'],['▶ WATCH',watchStart,'alt']]})}
@@ -187,8 +189,11 @@ function draw(now,dt){if(!cx||!L)return;const W=COLS*ts,H=ROWS*ts,t=now/1000;
  {const x=P.x*ts+ts/2,y=P.y*ts+ts/2,R=ts*.44,moving=(P.dx||P.dy)&&state==='play',m=moving?.08+.28*Math.abs(Math.sin(t*14)):.2;
   const a=P.dx>0?0:P.dx<0?Math.PI:P.dy>0?Math.PI/2:P.dy<0?-Math.PI/2:(P.face<0?Math.PI:0);
   if(auto){cx.strokeStyle='#6fe7ff';cx.lineWidth=2;cx.beginPath();cx.arc(x,y,R+4+2*Math.sin(t*8),0,7);cx.stroke()}
-  cx.fillStyle='#ffd400';cx.beginPath();cx.moveTo(x,y);cx.arc(x,y,R,a+m*Math.PI,a+(2-m)*Math.PI);cx.closePath();cx.fill();
-  cx.fillStyle='#3fe36a';cx.fillRect(x-R*.7,y-R*1.05,R*1.4,R*.35);
+  const gold=!!(window.SnackKit&&SnackKit.gold); /* paid cosmetic skin (kit unlock); never changes gameplay */
+  if(gold){const gr=cx.createRadialGradient(x-R*.35,y-R*.4,R*.08,x,y,R);gr.addColorStop(0,'#fff8c8');gr.addColorStop(.45,'#f2b807');gr.addColorStop(1,'#9a6a00');cx.fillStyle=gr}else cx.fillStyle='#ffd400';
+  cx.beginPath();cx.moveTo(x,y);cx.arc(x,y,R,a+m*Math.PI,a+(2-m)*Math.PI);cx.closePath();cx.fill();
+  cx.fillStyle=gold?'#b8860b':'#3fe36a';cx.fillRect(x-R*.7,y-R*1.05,R*1.4,R*.35);
+  if(gold){const k=(t*1.5)%1;emo('✨',x+R*.85,y-R*.95,ts*.3,1-k)}
   if(L.key==='chain'&&carry)txt('🎒'+carry,x,y-ts*.75,'#fff',Math.max(8,ts*.3|0))}
  pops=pops.filter(p=>p.t<1.3);pops.forEach(p=>{p.t+=dt;cx.globalAlpha=Math.max(0,1-p.t/1.3);txt(p.s,Math.min(W-60,Math.max(60,p.x*ts+ts/2)),p.y*ts-p.t*ts*.8,p.c,Math.max(9,ts*.34|0))});cx.globalAlpha=1;
  if(state==='ready')txt(auto?'▶ WATCH':'GO!',W/2,H/2,'#ffd400',Math.max(12,ts*.5|0));
@@ -208,7 +213,8 @@ function frame(now){raf=requestAnimationFrame(frame);const dt=Math.min(.05,(now-
 /* ---------- input: keys, swipe anywhere on the play area, big pad; any human steer takes back control from autoplay ---------- */
 function want(k){if(auto){setAuto(false);idle=0}P.want=DIR[k]}
 const KEYS={ArrowLeft:'L',ArrowRight:'R',ArrowUp:'U',ArrowDown:'D',a:'L',d:'R',w:'U',s:'D',A:'L',D:'R',W:'U',S:'D'};
-function onKey(e){if(!open.on)return;const k=KEYS[e.key];
+function onKey(e){if(!open.on)return;if(e.target&&e.target.closest&&e.target.closest('input,textarea,.jutz-ov'))return; /* let players type a badge name / use the kit dialog */
+ const k=KEYS[e.key];
  if(k&&$('gmcard').hidden){e.preventDefault();e.stopImmediatePropagation();want(k);return}
  if(k){e.preventDefault();e.stopImmediatePropagation();return}
  if(e.key==='Escape'||e.key==='p'||e.key==='P'){e.preventDefault();e.stopImmediatePropagation();state==='paused'?resume():pause();return}

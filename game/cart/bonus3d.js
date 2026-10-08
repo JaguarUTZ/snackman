@@ -84,6 +84,7 @@ const R = .42;
 const Y = new THREE.MeshLambertMaterial({ color: 0xFFD400, side: THREE.DoubleSide });
 const MOUTH = new THREE.MeshLambertMaterial({ color: 0x5a0d0d });
 const HAT = new THREE.MeshLambertMaterial({ color: 0x1FA83A }), HAT2 = new THREE.MeshLambertMaterial({ color: 0x0B6B22 });
+try { if (window.SnackKit && SnackKit.gold) { Y.color.set(0xF2B807); Y.emissive.set(0x3d2a00); HAT.color.set(0xB8860B); HAT2.color.set(0x7A5200) } } catch (e) { } // paid cosmetic skin (kit unlock), looks only
 const snack = new THREE.Group(), body = new THREE.Group(); snack.add(body);
 const upper = new THREE.Group(), lower = new THREE.Group(); body.add(upper, lower);
 upper.add(new THREE.Mesh(new THREE.SphereGeometry(R, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), Y));
@@ -155,7 +156,7 @@ function input(k) {
     setWant(k === 'up' ? f : k === 'down' ? [-f[0], -f[1]] : k === 'left' ? l : r); return }
   setWant(DIRS[k]);
 }
-addEventListener('keydown', e => { const m = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' }[e.code]; if (m) { e.preventDefault(); input(m) } });
+addEventListener('keydown', e => { if (e.target && e.target.closest && e.target.closest('input,textarea,.jutz-ov')) return; const m = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' }[e.code]; if (m) { e.preventDefault(); input(m) } });
 let sw = null;
 stage.addEventListener('pointerdown', e => { sw = { x: e.clientX, y: e.clientY, done: false } });
 stage.addEventListener('pointermove', e => { if (!sw || sw.done) return; const dx = e.clientX - sw.x, dy = e.clientY - sw.y; if (Math.hypot(dx, dy) > 22) { sw.done = true; input(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up')) } });
@@ -228,7 +229,7 @@ function tryPick() { if (held || !belt || !belt.arrive) return; held = belt; bel
 function p2Arrive(x, z) {
   if (x === PICK[0] && z === PICK[1]) tryPick();
   if (z === 0) { const g = GATES[GATE_X.indexOf(x)];
-    if (held) { if (held.it.d === g) { tally[g] += held.it.kg; sorted++; growLine(g); okBlip(); burst('POW!', snack.position, ST[g].color); heldSlot.remove(held.m); held = null; showHeld(); if (g === 'PYRO') setTimeout(poop, 200); if (sorted % 10 === 0) { play('snackman-hit', .8); toast(sorted + ' SORTED!<br>YOUR LINE IS GROWING') } panel() }
+    if (held) { if (held.it.d === g) { tally[g] += held.it.kg; sorted++; growLine(g); okBlip(); burst('POW!', snack.position, ST[g].color); heldSlot.remove(held.m); held = null; showHeld(); if (g === 'PYRO') setTimeout(poop, 200); if (sorted % 10 === 0) { play('snackman-hit', .8); toast(sorted + ' SORTED!<br>YOUR LINE IS GROWING'); try { const k = $('kit3d'); if (k && window.SnackKit && SnackKit.kitLoaded) k.hidden = false } catch (e) { } } panel() }
       else { wrong++; buzz(); burst('WRONG LINE', snack.position, '#F85898'); toast(RES[held.it.c] + ' ' + held.it.n.toUpperCase() + '<br>→ ' + ST[held.it.d].name, 1800) } }
     setWant([0, 1]) }
 }
@@ -315,5 +316,5 @@ resize(); requestAnimationFrame(frame);
 $('startBtn').onclick = () => { $('over').style.display = 'none'; running = true; startAudio(); toast('EAT ALL THE PLASTIC!<br><span style="font-size:10px">SWIPE / ARROWS</span>', 1800) };
 if (qs.get('phase') === '2') { $('over').style.display = 'none'; running = true; kg = A.PHASE1_GOAL_KG; hud(); startPhase2() }
 if (qs.has('autoplay')) { $('over').style.display = 'none'; running = true }
-window.SNACK3D = { A, tally, input, startPhase2, calc, GATE_X, GATES, get phase() { return phase }, get mv() { return mv }, get held() { return held }, get kg() { return kg },
+window.SNACK3D = { A, tally, input, startPhase2, calc, GATE_X, GATES, get phase() { return phase }, get mv() { return mv }, get held() { return held }, get kg() { return kg }, get sorted() { return sorted },
   demo(t) { for (const g in t) { tally[g] += t[g]; sorted += Math.round(t[g] / .6); for (let i = 0; i < Math.min(8, t[g] / .6); i++) growLine(g) } panel() } };
