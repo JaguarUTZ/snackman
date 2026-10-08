@@ -41,6 +41,23 @@ falls back to a system font.
 On the live site, every path is behind a name/cookie gate (`middleware.js` + `hub/gate.js`), and LV3/Master check `/api/access`.
 This repo removes both (see "Standalone changes").
 
+## Sound button
+
+The game screen (`/game/`) has one 3-way sound button in the top bar. Each tap moves to the next mode: **👾 8-BIT** (default), then **🎶 FORKASHI**, then **🔇 OFF**, then back to 8-BIT.
+
+- **👾 8-BIT** plays "Chomp Chomp HODL", an original Snackman chiptune. It is in F major at 150 BPM and loops every ~51 s. The music is synthesized live in WebAudio and needs no audio files. It has bid / HODL / digest sections, an oom-pah bass and chomp blips. It is not based on any Nintendo or Namco tune.
+- **🎶 FORKASHI** streams the 10 Punk Link Radio mixes, shuffled, from `https://jaguarutz-tuner.vercel.app/radio/`. Suspected covers are never included.
+- **🔇 OFF** turns off the music and the game's sound effects.
+
+The choice is saved on the device (`localStorage` key `snackman-sound-mode`). Browsers only allow audio after a tap, so sound starts on the first tap or key press. The music gets quieter while a level card or a prologue voice line is on screen.
+
+How it works:
+- The music lives in the shell (`shared/sound/snack-sound.js`), so it keeps playing as you move between carts.
+- Each cart loads `shared/sound/cart-sound.js`. Inside the shell, that script hides the cart's old sound toggle and mutes the cart's own background music. Sound effects keep working unless the mode is OFF.
+- A cart opened on its own, outside the shell, behaves as before.
+
+Tests: `node --test tests/`
+
 ## Repo layout / source map
 
 | Path | Contents | Came from |

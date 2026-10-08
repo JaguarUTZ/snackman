@@ -130,7 +130,9 @@ const SFX = {}; for (const n of ['snackman-hit', 'snackman-plop']) { const a = n
 function play(n, v = .8) { if (!soundOn) return; const a = SFX[n].cloneNode(); a.volume = v; a.play().catch(() => { }) }
 function tone(f0, f1, dur, type = 'square', vol = .06) { if (!soundOn || !AC) return; const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime; o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f1, t + dur); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur) }
 const waka = () => tone(420, 180, .09), okBlip = () => { tone(520, 880, .08); setTimeout(() => tone(880, 1320, .08), 70) }, buzz = () => tone(140, 90, .28, 'sawtooth', .07);
-function startAudio() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)() } catch (e) { } if (!theme) { theme = new Audio(AUDIO_BASE + 'snackman-theme' + ext); theme.loop = true; theme.volume = .35 } if (soundOn) theme.play().catch(() => { }) }
+const SS = window.SnackSound, inShell = !!(SS && SS.inShell); /* shell sound button owns the music; OFF mutes the effects */
+if (inShell) { soundOn = SS.on; SS.onChange(m => { soundOn = m !== 'off' }); SS.onGesture(() => { try { if (AC && AC.state === 'suspended') AC.resume() } catch (e) { } }) }
+function startAudio() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)() } catch (e) { } if (inShell) { soundOn = SS.on; return } if (!theme) { theme = new Audio(AUDIO_BASE + 'snackman-theme' + ext); theme.loop = true; theme.volume = .35 } if (soundOn) theme.play().catch(() => { }) }
 $('sndBtn').onclick = () => { soundOn = !soundOn; $('sndBtn').textContent = soundOn ? '🔊' : '🔇'; if (theme) soundOn ? theme.play().catch(() => { }) : theme.pause() };
 
 /* ===== GRID MOVER (Pac-Man style) ===== */

@@ -523,12 +523,12 @@ const FurnaceOverlay=(function(){let el=null,raf=0,F=null,last=0;
 const SND=(function(){
  const A=CFG.audio,KEY='ppsBidSound',AC=window.AudioContext||window.webkitAudioContext;
  if(!A||!AC)return null;
- let ctx=null,out=null,mus=null,enabled=false,active=true,want=null,cur=null,duckT=0,chompK=0,loading=null;const buf={},btns=[];
+ let ctx=null,out=null,mus=null,mm=null,musicOn=!(window.SnackSound&&SnackSound.inShell),enabled=false,active=true,want=null,cur=null,duckT=0,chompK=0,loading=null;const buf={},btns=[];
  const pref=()=>{try{return localStorage.getItem(KEY)}catch(e){return null}};
  const save=v=>{try{localStorage.setItem(KEY,v)}catch(e){}};
  function url(f){if(/\.[a-z0-9]{2,4}$/i.test(f))return A.base+f;const a=document.createElement('audio');const ogg=a.canPlayType&&a.canPlayType('audio/ogg; codecs="vorbis"');const ext=A.formats.find(x=>x==='ogg'?ogg:true)||'m4a';return A.base+f+'.'+ext}
  function load(){if(loading)return loading;loading=Promise.all(Object.entries(A.cues).map(async([k,c])=>{try{const r=await fetch(url(c.file));const ab=await r.arrayBuffer();buf[k]=await new Promise((ok,no)=>ctx.decodeAudioData(ab,ok,no))}catch(e){console.warn('bid-game audio: could not load',k,e)}}));return loading}
- function init(){if(ctx)return;ctx=new AC();out=ctx.createGain();out.gain.value=0;out.connect(ctx.destination);mus=ctx.createGain();mus.connect(out)}
+ function init(){if(ctx)return;ctx=new AC();out=ctx.createGain();out.gain.value=0;out.connect(ctx.destination);mus=ctx.createGain();mm=ctx.createGain();mm.gain.value=musicOn?1:0;mus.connect(mm);mm.connect(out)} /* mm: music on/off (the shell sound button owns the music) */
  function lvl(){return enabled&&active?1:0}
  function master(){if(!ctx)return;const t=ctx.currentTime;out.gain.cancelScheduledValues(t);out.gain.setValueAtTime(out.gain.value,t);out.gain.linearRampToValueAtTime(lvl(),t+0.4)}
  function play(k){if(!ctx||!buf[k])return false;const c=A.cues[k],t=ctx.currentTime,X=A.xfade;
@@ -540,13 +540,13 @@ const SND=(function(){
  function shot(k,dd){if(!ctx||!enabled||!buf[k])return;const c=A.cues[k],t=ctx.currentTime,s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf[k];g.gain.value=c.vol==null?1:c.vol;s.connect(g);g.connect(out);s.start(t);
   if(dd>0){mus.gain.cancelScheduledValues(t);mus.gain.setValueAtTime(mus.gain.value,t);mus.gain.linearRampToValueAtTime(.35,t+.05);mus.gain.setValueAtTime(.35,t+dd);mus.gain.linearRampToValueAtTime(1,t+dd+.3)}}
  function sting(){if(!ctx||!buf.sting)return;const c=A.cues.sting,t=ctx.currentTime,d=buf.sting.duration;const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf.sting;g.gain.value=c.vol==null?1:c.vol;s.connect(g);g.connect(out);s.start(t);
-  mus.gain.cancelScheduledValues(t);mus.gain.setValueAtTime(mus.gain.value,t);mus.gain.linearRampToValueAtTime(A.duck,t+0.3);mus.gain.setValueAtTime(A.duck,t+d-0.6);mus.gain.linearRampToValueAtTime(1,t+d+0.4)}
+  try{window.SnackSound&&SnackSound.duck(Math.round(d*1000)+400)}catch(e){}mus.gain.cancelScheduledValues(t);mus.gain.setValueAtTime(mus.gain.value,t);mus.gain.linearRampToValueAtTime(A.duck,t+0.3);mus.gain.setValueAtTime(A.duck,t+d-0.6);mus.gain.linearRampToValueAtTime(1,t+d+0.4)}
  function chomp(){if(!ctx||!A.chomp||!A.chomp.on)return;const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type='square';const f=(chompK++%2)?330:440;o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f/2.2,t+0.07);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(A.chomp.vol,t+0.005);g.gain.exponentialRampToValueAtTime(0.0005,t+0.09);o.connect(g);g.connect(out);o.start(t);o.stop(t+0.1)}
  function sync(){if(!ctx||!enabled)return;if(want&&(!cur||cur.k!==want))play(want)}
  function ui(){btns.forEach(b=>{b.textContent=enabled?'\u{1F507} SOUND OFF':'\u{1F50A} SOUND ON';b.setAttribute('aria-pressed',enabled?'true':'false');b.title=(enabled?'Mute':'Turn sound on')+' (M)';b.classList.toggle('on',enabled)})}
  async function enable(remember){init();enabled=true;if(remember)save('on');ui();try{await ctx.resume()}catch(e){}master();await load();sync()}
  function disable(remember){enabled=false;if(remember)save('off');ui();master()}
- function gesture(e){if(e.target&&e.target.closest&&e.target.closest('[data-snd]'))return;document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);if(enabled)return;if(pref()==='off')return;e.__sndUnlock=1;enable(false)}
+ function gesture(e){if(e.target&&e.target.closest&&e.target.closest('[data-snd]'))return;document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);if(enabled)return;if(window.SnackSound&&SnackSound.inShell&&!SnackSound.on)return;if(pref()==='off')return;e.__sndUnlock=1;enable(false)}
  document.addEventListener('pointerdown',gesture,true);document.addEventListener('keydown',gesture,true);
  return {
   on(n){if(n==='pop')return chomp();
@@ -555,6 +555,7 @@ const SND=(function(){
    if(n==='snack'){shot('snackHit',.9);if((CFG.snackman||{}).theme!==false){want='snack';sync()}return}
    if(n==='furnace'){want='win';if(ctx&&enabled&&(!cur||cur.k!=='win'||ctx.currentTime-(cur.t0||0)>4))play('win');return}if(n==='sting'||n==='fail'){if(n==='fail')want='act1',sync();return sting()}want=n;sync()},
   toggle(){enabled?disable(true):enable(true)},enable,disable,
+  setMusic(v){musicOn=!!v;if(mm&&ctx)mm.gain.setTargetAtTime(musicOn?1:0,ctx.currentTime,0.1)},
   setActive(v){v=!!v;if(v===active)return;active=v;master()},
   bind(el){if(!el)return;btns.push(el);el.setAttribute('data-snd','');el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();this.toggle()});ui()},
   key(e){if(e.__sndUnlock)return;this.toggle()},

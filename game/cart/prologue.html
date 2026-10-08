@@ -14,7 +14,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;background
 .ctl button{font:inherit;font-size:clamp(9px,2.2vmin,12px);border:0;padding:12px 14px;cursor:pointer;box-shadow:3px 3px 0 #333}
 #bid{background:#58D854;color:#000}#next{background:#FFD400;color:#000;box-shadow:3px 3px 0 #8a6500}#next[hidden]{display:none}.b2{background:#1a1a1a;color:#ddd}
 </style>
-<script src="../../shared/emu/cart.js"></script>
+<script src="../../shared/emu/cart.js"></script><script src="../../shared/sound/cart-sound.js"></script>
 </head><body><main>
 <div class="gbox"><canvas id="cv" width="256" height="224" aria-label="Snackman: the interceptor game versus a bid on plastic"></canvas><button class="tap" id="tap" type="button"><span>▶ PLAY SNACKMAN<small>SOUND ON</small></span></button></div>
 <div class="ctl"><button id="bid" type="button">Ⓐ PUT A BID ON PLASTIC ▸</button><button class="b2" id="replay" type="button">↻ REPLAY</button><button id="next" type="button" hidden>LEVEL 1 ▶</button></div>
@@ -24,7 +24,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;background
 /* flow copied from the frozen /plastic/play page (play.html); donation panel, share and analytics removed */
 const $=id=>document.getElementById(id);const g=BidGame.create($('cv'));let started=false,dropped=false,autoT=null;
 g.frame(3);
-function begin(){if(started)return;started=true;$('tap').hidden=true;try{BidGame.sound&&BidGame.sound.enable(true)}catch(e){}g.start();clearTimeout(autoT);autoT=setTimeout(()=>{if(!dropped)drop()},26000)}
+function begin(){if(started)return;started=true;$('tap').hidden=true;try{const SS=window.SnackSound;if(BidGame.sound&&!(SS&&SS.inShell&&!SS.on))BidGame.sound.enable(!(SS&&SS.inShell))}catch(e){}g.start();clearTimeout(autoT);autoT=setTimeout(()=>{if(!dropped)drop()},26000)}
 function drop(){begin();dropped=true;clearTimeout(autoT);g.demo(BidGame.GOAL,true)}
 $('tap').onclick=begin;$('bid').onclick=drop;$('replay').onclick=()=>{dropped=false;started=false;$('next').hidden=true;begin()};
 const next=()=>{try{BidGame.sound&&BidGame.sound.enable(false)}catch(e){}location.href='levels.html?level=0'};$('next').onclick=next;
@@ -34,4 +34,5 @@ addEventListener('keydown',e=>{if(EMUCART.paused)return;if(e.key==='Enter'||e.ke
 window.EMU={title:'SNACKMAN · PROLOGUE',start(){if(!started)begin();else if(!$('next').hidden)next();else if(!dropped)drop()},
  pause(){g.pause()},resume(){g.resume()}};
 EMUCART.title(EMU.title);
-</script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body></html>
+</script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script>/* shell sound button: OFF mutes the bid-game effects; 8-BIT/FORKASHI keep them (the shell plays the music) */
+(function(){const SS=window.SnackSound;if(!SS||!SS.inShell)return;SS.onChange(m=>{const s=window.BidGame&&BidGame.sound;if(!s)return;if(m==='off')s.disable(false);else if(started)s.enable(false)});SS.onGesture(()=>{const s=window.BidGame&&BidGame.sound;try{if(s&&s.enabled&&s.ctx&&s.ctx.state==='suspended')s.ctx.resume()}catch(e){}})})();</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body></html>

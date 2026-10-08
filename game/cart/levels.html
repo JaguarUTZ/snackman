@@ -67,7 +67,7 @@ body{font-family:"Press Start 2P",ui-monospace,monospace;-webkit-tap-highlight-c
 #gmcard.intro .gmc-b{grid-template-columns:1fr 1fr}#gmcard.intro .gmc-b .alt{background:#6fe7ff;box-shadow:4px 4px 0 #1a6a80}
 #gm{background:#000}#gmx2,#gmsnd{display:none}#snd{display:none}
 </style>
-<script src="../../shared/emu/cart.js"></script>
+<script src="../../shared/emu/cart.js"></script><script src="../../shared/sound/cart-sound.js"></script>
 <script src="https://jaguarutz-kit.vercel.app/kit.js" async></script><script src="snack-kit.js"></script>
 </head><body>
 <button id="snd" type="button" aria-pressed="false">♪ OFF</button>
@@ -87,7 +87,11 @@ function play(n,v){if(!snd||!AC||!buf[n])return;const s=AC.createBufferSource(),
 function beep(f,d,when,type,v){if(!snd||!AC)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+(when||0);o.type=type||'square';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v||.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)}
 document.getElementById('snd').onclick=()=>{snd=!snd;if(snd){ensureAC();AC.resume&&AC.resume();beep(784,.1);beep(1047,.12,.1)}};
 /* sound on at first tap/key, like a console */
-const unlock=()=>{if(!snd)document.getElementById('snd').click();removeEventListener('pointerdown',unlock,true);removeEventListener('keydown',unlock,true)};
+const SNDSS=window.SnackSound,sndInShell=!!(SNDSS&&SNDSS.inShell);
+const unlock=()=>{if(sndInShell){snd=SNDSS.on;if(snd){ensureAC();AC.resume&&AC.resume()}}else if(!snd)document.getElementById('snd').click();removeEventListener('pointerdown',unlock,true);removeEventListener('keydown',unlock,true)};
+/* shell sound button: OFF mutes the effects; 8-BIT/FORKASHI keep them. Music ducks while a level card is up. */
+if(sndInShell){SNDSS.onChange(m=>{snd=m!=='off';if(snd){ensureAC();AC.resume&&AC.resume()}});SNDSS.onGesture(()=>{if(snd&&AC&&AC.state==='suspended')AC.resume()});
+ try{const c=document.getElementById('gmcard');new MutationObserver(()=>SNDSS.duck(!c.hidden)).observe(c,{attributes:true,attributeFilter:['hidden']})}catch(e){}}
 addEventListener('pointerdown',unlock,true);addEventListener('keydown',unlock,true);
 </script>
 <script src="levels.js"></script><script src="../../shared/hub/save.js"></script>
