@@ -58,6 +58,39 @@ How it works:
 
 Tests: `node --test tests/`
 
+## Saved run + "PREVIOUSLY ON SNACKMAN..." recap
+
+This follows the team pattern in `team-kit/recap-spec.md` and works the same way as Punk Link.
+
+**Saved run**
+- Saved in this browser's localStorage only (`hw_save_snackman`). Nothing personal is saved and nothing is sent anywhere.
+- The save holds:
+  - the furthest level checkpoint and its score
+  - the high score
+  - the master unlock
+  - the Plastic Depot record
+  - the snacks eaten per cleared level
+- The save is written at every level start, every level clear and every depot choice.
+- Beating the Master Level clears the run but keeps the high score and the master unlock.
+
+**Title screen**
+- When a save exists, the title shows **▶ CONTINUE LVn** (the default for Enter or START) and **↺ START OVER**.
+- START OVER clears the run but keeps the high score and the master unlock.
+
+**When the recap shows**
+- On CONTINUE.
+- When you come back after **10+ minutes** away. Mid-level only: never over the takeaway card, the unlock or win screens, or a kit dialog.
+- The away stamp is `snackman.away` in localStorage. It is written when the tab hides, read and deleted when the tab shows, and cleared on page load.
+
+**How the recap works**
+- One line at a time. Tap, **GO ▶**, Enter or → moves to the next line; **SKIP >>** (or Esc / ▼) ends it at any time.
+- It is an overlay, so closing it always drops you back exactly where you were.
+- The game is frozen and the music is ducked while it is up.
+- Live lines are plain facts from the save: where you are, the depot choice, and what's next. Stats (sats, snacks, depot record) appear as chips on the last card.
+- Copy lives in `game/cart/recap-strings.js` (PENDING JOSE'S OK). The snarky drafts there are never shown in game. The logic lives in `game/cart/recap.js`.
+
+**Tests:** `node --test tests/`
+
 ## Repo layout / source map
 
 | Path | Contents | Came from |

@@ -117,7 +117,7 @@ function update(dt){stT+=dt;
  if(hitT<=0&&Math.abs(G.x-P.x)+Math.abs(G.y-P.y)<.7){hitT=1.2;tLeft=Math.max(0,tLeft-3);pop(L.ghost[0]+' -3s',P.x,P.y-1,'#ff5a5a');B(262,.3,0,'sawtooth',.06);PL('plop',.5);G.x=gsx;G.y=gsy;G.dx=G.dy=0;va('hit_'+L.key)}
  hud()}
 function levelClear(timeout){setState('clearing');const bonus=300*L.n+Math.round(tLeft)*10;score+=bonus;const wasAuto=auto;setAuto(false);hud();
- sv({level:Math.min(li+1,REG),score,master:li>=REG-1});va('clear_'+L.key+(timeout?'_time':'')+(wasAuto?'_auto':''));
+ sv({level:Math.min(li+1,REG),score,master:li>=REG-1,ateLv:li,ate:eaten});va('clear_'+L.key+(timeout?'_time':'')+(wasAuto?'_auto':''));
  [523,659,784,1047].forEach((f,k)=>B(f,.12,k*.11,'square',.06));
  setTimeout(()=>{if(state!=='clearing')return;if(li===REG)return final();const e=L.end,last=li===REG-1;if(last)confetti();
   card({cls:'clear take',k:(timeout?'⏱ TIME! · ':'✔ ')+'TAKEAWAY '+L.n+'/3',h:e.h,t:'<span class="ic">'+e.icons+(L.key==='sort'?' ×'+pile:'')+'</span>'+e.t,
@@ -127,7 +127,7 @@ function unlock(){unlocked=true;setState('unlock');va('master_unlock');
  [523,659,784,1047,1319,1568].forEach((f,k)=>B(f,.14,k*.09,'square',.06));setTimeout(()=>PL('hit',.8),600);
  card({cls:'unlock',k:'SECRET BONUS',h:'🔓 MASTER LEVEL UNLOCKED',t:'<span class="ic">🧱 🛢️ ⚡ 🛒</span>Sorted, pyrolysed, paid in credit. One more.',
   b:[['▶ PLAY THE MASTER LEVEL',()=>{lvStart=score;startLevel(REG,true)},'go']]});confetti()}
-function final(){setState('end');va('master_win');
+function final(){setState('end');va('master_win');sv({done:true,score}); /* run complete: the saved run is cleared (best + master kept) */
  [523,659,784,1047,1319,1568,2093].forEach((f,k)=>B(f,.16,k*.1,'square',.06));confetti();
  card({cls:'end',k:'MASTER LEVEL CLEAR · YOU WON',h:'BID PLASTIC, CLEAN THE RIVER, FIX THE MONEY, FIX THE WORLD.',
   t:'<span class="ic">🧴 → 🧱 🛢️ ⚡ → 🛒</span>Plastic in: products, oil, energy and shopping credit out.',x:'FINAL SCORE '+fmt(score)+' SATS (GAME SATS ARE PRETEND)',
@@ -209,7 +209,7 @@ function hud(){if(!L)return;$('gmlv').textContent=(L.key==='master'?'★ ':'LV '
 function resize(){if(!cv)return;const wr=$('gmwrap').getBoundingClientRect();ts=Math.max(16,Math.min(60,Math.floor(Math.min((wr.width-8)/COLS,(wr.height-8)/ROWS))));dpr=Math.min(3,window.devicePixelRatio||1);
  cv.style.width=COLS*ts+'px';cv.style.height=ROWS*ts+'px';cv.width=COLS*ts*dpr;cv.height=ROWS*ts*dpr}
 /* ---------- loop ---------- */
-function frame(now){raf=requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;if(state!=='paused'&&!(window.HWLevelGate&&HWLevelGate.blocked))update(dt);draw(now,dt)}
+function frame(now){raf=requestAnimationFrame(frame);const dt=Math.min(.05,(now-(last||now))/1000);last=now;if(state!=='paused'&&!(window.HWLevelGate&&HWLevelGate.blocked)&&!(window.SnackRecap&&SnackRecap.active))update(dt);draw(now,dt)}
 /* ---------- input: keys, swipe anywhere on the play area, big pad; any human steer takes back control from autoplay ---------- */
 function want(k){if(auto){setAuto(false);idle=0}P.want=DIR[k]}
 const KEYS={ArrowLeft:'L',ArrowRight:'R',ArrowUp:'U',ArrowDown:'D',a:'L',d:'R',w:'U',s:'D',A:'L',D:'R',W:'U',S:'D'};
