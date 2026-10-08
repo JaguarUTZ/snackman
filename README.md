@@ -1,5 +1,7 @@
 # Snackman
 
+**Play online:** https://snackman.vercel.app/game/ · 3D bonus: https://snackman.vercel.app/game/?cart=bonus3d · shelf: https://snackman.vercel.app/
+
 **Snackman** is a 16-bit arcade pitch game from the *Howard Woods Interactive Pitching System* (Jaguar Utz).
 Snackman is the only creature that can **eat plastic** (and, in cartoon terms, produce Bitcoin). The game walks
 players through the plastic-to-value business model:
