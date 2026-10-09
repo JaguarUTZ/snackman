@@ -1,7 +1,5 @@
 # Snackman
 
-**Play online:** https://snackman.vercel.app/game/ · 3D bonus: https://snackman.vercel.app/game/?cart=bonus3d · shelf: https://snackman.vercel.app/
-
 **Snackman** is a 16-bit arcade pitch game from the *Howard Woods Interactive Pitching System* (Jaguar Utz).
 Snackman is the only creature that can **eat plastic** (and, in cartoon terms, produce Bitcoin). The game walks
 players through the plastic-to-value business model:
@@ -41,56 +39,6 @@ falls back to a system font.
 On the live site, every path is behind a name/cookie gate (`middleware.js` + `hub/gate.js`), and LV3/Master check `/api/access`.
 This repo removes both (see "Standalone changes").
 
-## Sound button
-
-The game screen (`/game/`) has one 3-way sound button in the top bar. Each tap moves to the next mode: **👾 8-BIT** (default), then **🎶 FORKASHI**, then **🔇 OFF**, then back to 8-BIT.
-
-- **👾 8-BIT** plays "Chomp Chomp HODL", an original Snackman chiptune. It is in F major at 150 BPM and loops every ~51 s. The music is synthesized live in WebAudio and needs no audio files. It has bid / HODL / digest sections, an oom-pah bass and chomp blips. It is not based on any Nintendo or Namco tune.
-- **🎶 FORKASHI** streams the 10 Punk Link Radio mixes, shuffled, from `https://jaguarutz-tuner.vercel.app/radio/`. Suspected covers are never included.
-- **🔇 OFF** turns off the music and the game's sound effects.
-
-The choice is saved on the device (`localStorage` key `snackman-sound-mode`). Browsers only allow audio after a tap, so sound starts on the first tap or key press. The music gets quieter while a level card or a prologue voice line is on screen.
-
-How it works:
-- The music lives in the shell (`shared/sound/snack-sound.js`), so it keeps playing as you move between carts.
-- Each cart loads `shared/sound/cart-sound.js`. Inside the shell, that script hides the cart's old sound toggle and mutes the cart's own background music. Sound effects keep working unless the mode is OFF.
-- A cart opened on its own, outside the shell, behaves as before.
-
-Tests: `node --test tests/`
-
-## Saved run + "PREVIOUSLY ON SNACKMAN..." recap
-
-This follows the team pattern in `team-kit/recap-spec.md` and works the same way as Punk Link.
-
-**Saved run**
-- Saved in this browser's localStorage only (`hw_save_snackman`). Nothing personal is saved and nothing is sent anywhere.
-- The save holds:
-  - the furthest level checkpoint and its score
-  - the high score
-  - the master unlock
-  - the Plastic Depot record
-  - the snacks eaten per cleared level
-- The save is written at every level start, every level clear and every depot choice.
-- Beating the Master Level clears the run but keeps the high score and the master unlock.
-
-**Title screen**
-- When a save exists, the title shows **▶ CONTINUE LVn** (the default for Enter or START) and **↺ START OVER**.
-- START OVER clears the run but keeps the high score and the master unlock.
-
-**When the recap shows**
-- On CONTINUE.
-- When you come back after **10+ minutes** away. Mid-level only: never over the takeaway card, the unlock or win screens, or a kit dialog.
-- The away stamp is `snackman.away` in localStorage. It is written when the tab hides, read and deleted when the tab shows, and cleared on page load.
-
-**How the recap works**
-- One line at a time. Tap, **GO ▶**, Enter or → moves to the next line; **SKIP >>** (or Esc / ▼) ends it at any time.
-- It is an overlay, so closing it always drops you back exactly where you were.
-- The game is frozen and the music is ducked while it is up.
-- Live lines are plain facts from the save: where you are, the depot choice, and what's next. Stats (sats, snacks, depot record) appear as chips on the last card.
-- Copy lives in `game/cart/recap-strings.js` (PENDING JOSE'S OK). The snarky drafts there are never shown in game. The logic lives in `game/cart/recap.js`.
-
-**Tests:** `node --test tests/`
-
 ## Repo layout / source map
 
 | Path | Contents | Came from |
@@ -117,12 +65,3 @@ Git history keeps them separate. Commit 1 is the verbatim import, and the second
 2. `shared/hub/*` replaces the server-backed hub with offline shims that use the same globals (`HWSave`, `HWLevelGate`, `HWClicks`, `HW`).
 
 The game JS (`levels.js`, `bonus3d.js`, `bid-game.js`, `three.module.min.js`) and all media are byte-identical to `live`.
-
-## No cacophony (team Rule #1)
-Two music sources never play at once. One audio manager (`music-switch.js`) owns all music: on every change
-(sound button, FORKASHI track change, 8-BIT theme change, game start/continue, hidden tab) the old source fades
-fully out (0.6 s) and stops, ~80 ms of silence, then the new one fades in (0.6 s). Rapid taps never stack: the last
-choice wins. Ducking (cards/recap) is a level ramp on the one active source. Notable SFX dip the music fully out,
-play, then the music comes back. Tuner: on `{type:'jaguarutz:audio', action:'fadeout', ms}` (any origin, exact
-shape only) all game audio (music + SFX) fades to 0 within `ms`, then the AudioContext is suspended; pagehide is
-the fallback. Tests: `tests/music-switch.test.mjs` (fake clock) and the Tuner test.

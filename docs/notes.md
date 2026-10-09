@@ -43,28 +43,3 @@ Found while assembling this repo (2026-10-07). File paths are repo paths. "live"
   hub's local mode reads the same shape.
 - Run check: every referenced local file (46 URLs: pages, scripts, css, images, 18 audio files, three.js) returns 200 under
   `python3 -m http.server`. Headless Chrome loaded title, prologue, levels (LV3 directly) and bonus3d with no JS errors.
-
-## Kit hooks (JaguarUTZ kit, added 2026-10-07)
-
-Kit: `<script src="https://jaguarutz-kit.vercel.app/kit.js" async>` (game id `snackman`). All Snackman glue is in
-`game/cart/snack-kit.js` (`window.SnackKit`). Every kit call is guarded (`typeof JUTZ` check, try/catch, async load,
-no awaits on page load). If kit.js is blocked or down, the hooks stay hidden and the game plays the same. No login, no player data.
-
-- **Tip jar** (`JUTZ.tipJar`, button label `⚡ TIP SATS`):
-  - title screen: `game/cart/title.html` → `#kittip` (in the `#kit` row under the stage select)
-  - Master win card: `game/cart/levels.js` → `final()` calls `SnackKit.endBlock(...)`
-  - 3D bonus: `game/cart/bonus3d.html` → `#kittip3d` (start screen) and `#kit3dtip` (factory panel after 10 sorted)
-- **Paid unlock** (`JUTZ.unlock`): item `golden-snackman`, 21 sats, button `★ GOLDEN SNACKMAN · 21 SATS` on the title
-  screen (`#kitskin`). Cosmetic only: gold body + gold hard hat + sparkle in `levels.js` `draw()`, gold materials in
-  `bonus3d.js` (after the `HAT` materials), gold-tinted GIF on the title. Never gates a level. Token lives in
-  `localStorage["jutz:unlock:snackman:golden-snackman"]` (kit format). After purchase, the same button toggles
-  `GOLD SKIN: ON/OFF` (`localStorage["snackman_gold_off"]`). Anyone editing the JS can fake it. That's fine for a skin.
-- **Signed badge** (`JUTZ.badge`, `show:false` + our own plain panel with optional name, OPEN / COPY / SHARE and the URL):
-  - main game: Master win card (`levels.js` `final()`), achievement `Beat the Master Level (<score> pts)`
-  - 3D bonus: `#kit3d` in the factory panel, shown after every 10th correct sort (`bonus3d.js` sort milestone),
-    achievement `Snackman 3D: sorted <n> pieces`. Badges are verifiable at the kit's `badge.html` / `/api/verify`.
-    Note that anyone can call `/api/badge`, so a badge proves that the team server signed it, not that the player earned it.
-- Key handlers in `title.html`, `levels.js` (`onKey`) and `bonus3d.js` ignore keys typed into inputs / the kit dialog,
-  so typing a badge name doesn't steer Snackman.
-- Kit-owned copy (not editable from here): modal titles/texts like "Tip the trolls ⚡", "Summoning an invoice…",
-  and the badge page text "Troll to Valhalla, forks up."

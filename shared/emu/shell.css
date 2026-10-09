@@ -16,9 +16,3 @@ body{display:flex;flex-direction:column;font:400 9px/1 'Press Start 2P',ui-monos
 #emuboot.off{opacity:0;pointer-events:none}
 body.fs #emubar{display:none}
 @media (max-width:520px){#emubar .t{display:none}#emubar{justify-content:flex-start}#emubar a,#emubar button{padding:7px 6px}#emubar #emustart{margin-left:auto}}
-/* 3-way sound button (shared/sound/snack-sound.js) */
-#emubar #emusound{color:#000;border-color:#000}
-#emubar #emusound[data-mode="8bit"]{background:#5CC97B;border-color:#5CC97B}
-#emubar #emusound[data-mode="forkashi"]{background:#fc9838;border-color:#fc9838}
-#emubar #emusound[data-mode="off"]{background:#3a3a3a;border-color:#3a3a3a;color:#bbb}
-@media (max-width:520px){#emubar #emusound{margin-left:auto}#emubar #emusound + #emustart{margin-left:0}}

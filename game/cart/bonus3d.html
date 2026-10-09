@@ -37,7 +37,6 @@ body.p2 #panel{display:block}
 @media (min-width:900px){#app{flex-direction:row}body.p2 #panel{height:auto;width:380px;border-top:0;border-left:3px solid #FFD400}}
 #stage canvas{image-rendering:auto}
 </style>
-<script src="https://jaguarutz-kit.vercel.app/kit.js" async></script><script src="snack-kit.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -55,7 +54,6 @@ body.p2 #panel{display:block}
    <p><b>Phase 1 · The bid:</b> roll along the Motagua and eat all the plastic. <b>Phase 2 · Sorting:</b> the plastic arrives by resin code. Carry each piece to its line and build your own processing plant.</p>
    <p class="small">Swipe on the game (phone) or use arrow keys / WASD. Prototype. All numbers are ILLUSTRATION.</p>
    <button class="btn" id="startBtn" type="button">▶ TAP TO PLAY</button>
-   <div id="kittip3d" class="sk-row"></div>
   </div>
  </div>
  <aside id="panel" aria-label="Factory layout calculator">
@@ -65,14 +63,11 @@ body.p2 #panel{display:block}
   <div id="scale" class="small"></div>
   <div id="diag"></div>
   <div class="small" id="assump" style="margin-top:8px"></div>
-  <div id="kit3d" hidden style="margin-top:12px;border-top:1px solid #333;padding-top:8px"><div class="small">10 SORTED: YOU CAN GET A SIGNED BADGE.</div><div id="kit3dbadge"></div><div id="kit3dtip" class="sk-row"></div></div>
  </aside>
 </div>
-<script src="../../shared/emu/cart.js"></script><script src="../../shared/sound/cart-sound.js"></script>
+<script src="../../shared/emu/cart.js"></script>
 <script>window.EMU={title:'SNACKMAN · BONUS 3D',pause(){window.__emuPaused=true},resume(){window.__emuPaused=false},
  start(){const o=document.getElementById('over');if(o&&o.style.display!=='none')document.getElementById('startBtn').click()}};EMUCART.title(EMU.title);</script>
-<script>/* kit hooks (guarded; the 3D bonus plays the same without kit.js) */
-try{if(window.SnackKit){SnackKit.tip('#kittip3d');SnackKit.tip('#kit3dtip');SnackKit.badgeForm('#kit3dbadge',()=>'Snackman 3D: sorted '+((window.SNACK3D&&SNACK3D.sorted)||0)+' pieces')}}catch(e){}</script>
 <script type="module" src="bonus3d.js"></script>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body>
 </html>

@@ -66,19 +66,8 @@ body{font-family:"Press Start 2P",ui-monospace,monospace;-webkit-tap-highlight-c
 .gmc-b{grid-template-columns:1fr}.gmc-b button,.gmc-b a{min-height:52px}
 #gmcard.intro .gmc-b{grid-template-columns:1fr 1fr}#gmcard.intro .gmc-b .alt{background:#6fe7ff;box-shadow:4px 4px 0 #1a6a80}
 #gm{background:#000}#gmx2,#gmsnd{display:none}#snd{display:none}
-/* PREVIOUSLY ON SNACKMAN... recap (recap.js) */
-#rcp{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(4,4,20,.9)}
-#rcp .rcp-box{max-width:520px;width:100%;background:#000;border:4px solid #6fe7ff;box-shadow:0 0 0 4px #000,8px 8px 0 #1a6a80;padding:16px 14px;text-align:left;animation:rmpzin .25s steps(4);cursor:pointer}
-#rcp .rcp-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}#rcp .rcp-top img{width:40px;height:40px;image-rendering:pixelated}
-#rcp .rcp-h{flex:1;font-size:clamp(9px,2.8vw,12px);line-height:1.6;color:#ffd400}#rcp .rcp-n{font-size:10px;color:#ffb8ff}
-#rcp .rcp-line{font-size:clamp(13px,4.2vw,19px);line-height:1.6;color:#fcfcfc;margin:0 0 12px;min-height:3.2em}
-#rcp .rcp-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}#rcp .rcp-chips span{font-size:10px;padding:6px 8px;border:2px solid #ffd400;color:#ffd400;background:#1a1400}
-#rcp .rcp-hint{font-size:8px;color:#888;margin:0 0 12px;line-height:1.6}
-#rcp .rcp-b{display:grid;grid-template-columns:2fr 1fr;gap:8px}#rcp .rcp-b button{font:inherit;font-size:clamp(10px,3.2vw,13px);min-height:52px;border:0;cursor:pointer;color:#000;background:#ffd400;box-shadow:4px 4px 0 #b05000}
-#rcp .rcp-b .rcp-skip{background:#fcfcfc;box-shadow:4px 4px 0 #555}
 </style>
-<script src="../../shared/emu/cart.js"></script><script src="../../shared/sound/cart-sound.js"></script>
-<script src="https://jaguarutz-kit.vercel.app/kit.js" async></script><script src="snack-kit.js"></script>
+<script src="../../shared/emu/cart.js"></script>
 </head><body>
 <button id="snd" type="button" aria-pressed="false">♪ OFF</button>
 <div id="gm" role="dialog" aria-modal="true" aria-label="Snackman: the levels" hidden>
@@ -93,51 +82,28 @@ body{font-family:"Press Start 2P",ui-monospace,monospace;-webkit-tap-highlight-c
 /* sound helpers (verbatim from the Roadmap v2 page; the level engine calls snd/AC/beep/play) */
 let snd=false,AC=null,buf={};
 function ensureAC(){if(AC)return;AC=new (window.AudioContext||window.webkitAudioContext)();const ext=new Audio().canPlayType('audio/ogg; codecs="vorbis"')?'ogg':'m4a';['plop','hit'].forEach(n=>fetch('a/snackman-'+n+'.'+ext).then(r=>r.arrayBuffer()).then(b=>AC.decodeAudioData(b)).then(d=>buf[n]=d).catch(()=>{}))}
-/* SFX go through one bus (lvOut) so the Tuner fadeout can ramp them to 0. NO CACOPHONY: a hit dips the shell music fully out first. */
-let lvBus=null;function lvOut(){if(!lvBus){lvBus=AC.createGain();lvBus.gain.value=1;lvBus.connect(AC.destination)}return lvBus}
-function play(n,v){if(!snd||!AC||!buf[n]||(SNDSS&&SNDSS.leaving))return;const s=AC.createBufferSource(),g=AC.createGain();g.gain.value=v||.7;s.buffer=buf[n];s.connect(g).connect(lvOut());const d0=SNDSS&&SNDSS.sfx?SNDSS.sfx(n==='hit',buf[n].duration):0;s.start(AC.currentTime+d0)}
-function beep(f,d,when,type,v){if(!snd||!AC)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+(when||0);o.type=type||'square';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v||.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(lvOut());o.start(t);o.stop(t+d+.02)}
+function play(n,v){if(!snd||!AC||!buf[n])return;const s=AC.createBufferSource(),g=AC.createGain();g.gain.value=v||.7;s.buffer=buf[n];s.connect(g).connect(AC.destination);s.start()}
+function beep(f,d,when,type,v){if(!snd||!AC)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+(when||0);o.type=type||'square';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v||.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)}
 document.getElementById('snd').onclick=()=>{snd=!snd;if(snd){ensureAC();AC.resume&&AC.resume();beep(784,.1);beep(1047,.12,.1)}};
 /* sound on at first tap/key, like a console */
-const SNDSS=window.SnackSound,sndInShell=!!(SNDSS&&SNDSS.inShell);
-if(SNDSS&&SNDSS.onFadeout)SNDSS.onFadeout(ms=>{if(!AC)return;const t=AC.currentTime,sec=Math.max(.01,ms/1000*.9);if(lvBus){lvBus.gain.cancelScheduledValues(t);lvBus.gain.setValueAtTime(lvBus.gain.value,t);lvBus.gain.linearRampToValueAtTime(0,t+sec)}setTimeout(()=>{try{AC.suspend()}catch(e){}},sec*1000+20)});
-const unlock=()=>{if(sndInShell){snd=SNDSS.on;if(snd){ensureAC();AC.resume&&AC.resume()}}else if(!snd)document.getElementById('snd').click();removeEventListener('pointerdown',unlock,true);removeEventListener('keydown',unlock,true)};
-/* shell sound button: OFF mutes the effects; 8-BIT/FORKASHI keep them. Music ducks while a level card is up. */
-if(sndInShell){SNDSS.onChange(m=>{snd=m!=='off';if(snd){ensureAC();AC.resume&&AC.resume()}});SNDSS.onGesture(()=>{if(snd&&AC&&AC.state==='suspended')AC.resume()});
- try{const c=document.getElementById('gmcard');new MutationObserver(()=>SNDSS.duck(!c.hidden)).observe(c,{attributes:true,attributeFilter:['hidden']})}catch(e){}}
+const unlock=()=>{if(!snd)document.getElementById('snd').click();removeEventListener('pointerdown',unlock,true);removeEventListener('keydown',unlock,true)};
 addEventListener('pointerdown',unlock,true);addEventListener('keydown',unlock,true);
 </script>
-<script src="recap-strings.js"></script><script src="recap.js"></script><script src="levels.js"></script><script src="../../shared/hub/save.js"></script>
+<script src="levels.js"></script><script src="../../shared/hub/save.js"></script>
 <script>
 const q=new URLSearchParams(location.search),lv=q.get('level');
 document.getElementById('gm').hidden=false;
 /* player-code save: furthest checkpoint {level,score}, best score, master unlock (server, per player) */
-/* "PREVIOUSLY ON SNACKMAN..." away stamp (team pattern): written when the tab hides, read + deleted when it shows. Local only. */
-const AWAYK=SnackRecap.AWAY_KEY;try{localStorage.removeItem(AWAYK)}catch(e){} /* clear any stale stamp on load */
-document.addEventListener('visibilitychange',()=>{
- if(document.hidden){try{localStorage.setItem(AWAYK,String(Date.now()))}catch(e){}return}
- let t=0;try{t=+localStorage.getItem(AWAYK)||0;localStorage.removeItem(AWAYK)}catch(e){}
- const st=SnackGame.s.state,kit=document.querySelector('.jutz-ov');
- /* mid-run only: never over the takeaway/score card, the unlock or win screens, or a kit dialog */
- if(t&&SnackRecap.shouldShowAfterAway(Date.now()-t)&&['intro','ready','play','paused','depot'].includes(st)&&!kit)
-  HWSave.load('snackman').then(s=>{try{SnackRecap.show(SnackRecap.build(s))}catch(e){}});
-});
 HWSave.load('snackman').then(S=>{S=S||{};
  SnackGame.rec=S.choice||null;
- /* local save (nothing personal): furthest level checkpoint + its score, best, master unlock, depot record, snacks per cleared level */
- SnackGame.onSave=s=>{
-  if(s.done){S={best:Math.max(S.best||0,s.score||0),master:true};HWSave.save('snackman',S);return} /* run complete: clear the run */
-  const far=s.level>=(S.level||0),c=S.choice||{n:0,cash:0,hoard:0,over:0,net:0},ate=Object.assign({},S.ate||{});
+ SnackGame.onSave=s=>{const far=s.level>=(S.level||0),c=S.choice||{n:0,cash:0,hoard:0,over:0,net:0};
   if(s.choice){c.n++;c[s.choice.r]=(c[s.choice.r]||0)+1;c.net+=s.choice.v;c.last=s.choice;SnackGame.rec=c}
-  if(s.ate!=null)ate[s.ateLv]=s.ate;
-  S={level:far?s.level:S.level,score:far?s.score:S.score,best:Math.max(S.best||0,s.score||0),master:!!(S.master||s.master),choice:c,ate};HWSave.save('snackman',S)};
- if(q.has('resume')&&S.level!=null){const saved=S;SnackGame.open({level:S.level,score:S.score||0,from:'resume'});
-  /* CONTINUE -> recap -> the saved level's start card (the recap sits on top, so closing it lands exactly there) */
-  try{SnackRecap.show(SnackRecap.build(saved))}catch(e){}}
+  S={level:far?s.level:S.level,score:far?s.score:S.score,best:Math.max(S.best||0,s.score||0),master:!!(S.master||s.master),choice:c};HWSave.save('snackman',S)};
+ if(q.has('resume')&&S.level!=null)SnackGame.open({level:S.level,score:S.score||0,from:'resume'});
  else SnackGame.open(lv!=null&&(/^[0-2]$/.test(lv)||(lv==='3'&&S.master))?{level:+lv,from:'shelf'}:{fresh:true,from:'shelf'});
 });
 const key=k=>dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));
 window.EMU={title:'SNACKMAN · LEVELS',ownPause:true,pause(){key('p')},resume(){key('p')},
- start(){if(SnackRecap.active)return SnackRecap.next();const b=document.querySelector('#gmcard:not([hidden]) .go')||document.querySelector('#gmcard:not([hidden]) button');if(b)b.click();else key('p')}};
+ start(){const b=document.querySelector('#gmcard:not([hidden]) .go')||document.querySelector('#gmcard:not([hidden]) button');if(b)b.click();else key('p')}};
 EMUCART.title(EMU.title);
 </script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body></html>

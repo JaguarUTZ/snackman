@@ -84,7 +84,6 @@ const R = .42;
 const Y = new THREE.MeshLambertMaterial({ color: 0xFFD400, side: THREE.DoubleSide });
 const MOUTH = new THREE.MeshLambertMaterial({ color: 0x5a0d0d });
 const HAT = new THREE.MeshLambertMaterial({ color: 0x1FA83A }), HAT2 = new THREE.MeshLambertMaterial({ color: 0x0B6B22 });
-try { if (window.SnackKit && SnackKit.gold) { Y.color.set(0xF2B807); Y.emissive.set(0x3d2a00); HAT.color.set(0xB8860B); HAT2.color.set(0x7A5200) } } catch (e) { } // paid cosmetic skin (kit unlock), looks only
 const snack = new THREE.Group(), body = new THREE.Group(); snack.add(body);
 const upper = new THREE.Group(), lower = new THREE.Group(); body.add(upper, lower);
 upper.add(new THREE.Mesh(new THREE.SphereGeometry(R, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), Y));
@@ -127,27 +126,11 @@ function stepFx(dt) { for (let i = fx.length - 1; i >= 0; i--) { const f = fx[i]
 let soundOn = true, AC = null, theme = null;
 const ext = (() => { const a = document.createElement('audio'); return a.canPlayType('audio/ogg; codecs="vorbis"') ? '.ogg' : '.m4a' })();
 const SFX = {}; for (const n of ['snackman-hit', 'snackman-plop']) { const a = new Audio(AUDIO_BASE + n + ext); a.preload = 'auto'; SFX[n] = a }
-/* NO CACOPHONY: one bus for SFX (Tuner fadeout ramps it to 0); a hit dips the music (shell button music, or the
-   standalone theme) fully out first, plays, then the music comes back. Theme on/off ramps instead of hard stops. */
-const live = new Set(); let leaving = false, bus = null, themeBack = null;
-function sfxOut() { if (!bus) { bus = AC.createGain(); bus.gain.value = 1; bus.connect(AC.destination) } return bus }
-function rampVol(a, to, ms, done) { if (!a) return; clearInterval(a.__r); const from = a.volume, t0 = performance.now(); a.__r = setInterval(() => { const k = Math.min(1, (performance.now() - t0) / Math.max(10, ms)); try { a.volume = from + (to - from) * k } catch (e) { } if (k >= 1) { clearInterval(a.__r); if (done) done() } }, 20) }
-function themeOn(on) { if (!theme) return; if (on) { theme.volume = 0; theme.play().catch(() => { }); rampVol(theme, .35, 600) } else rampVol(theme, 0, 500, () => theme.pause()) }
-function play(n, v = .8) {
-  if (!soundOn || leaving) return; const a = SFX[n].cloneNode(); a.volume = v; const dur = (isFinite(a.duration) && a.duration) || (isFinite(SFX[n].duration) && SFX[n].duration) || .6;
-  let delay = 0; if (n === 'snackman-hit') {
-    if (inShell) delay = SS.sfx(true, dur) * 1000;
-    else if (theme && !theme.paused) { delay = 100; rampVol(theme, 0, 100); clearTimeout(themeBack); themeBack = setTimeout(() => { if (soundOn && !leaving && !theme.paused) rampVol(theme, .35, 400) }, 100 + dur * 1000) }
-  }
-  live.add(a); a.addEventListener('ended', () => live.delete(a)); setTimeout(() => { if (!leaving) a.play().catch(() => { }) }, delay)
-}
-function tone(f0, f1, dur, type = 'square', vol = .06) { if (!soundOn || !AC) return; const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime; o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f1, t + dur); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g).connect(sfxOut()); o.start(t); o.stop(t + dur) }
+function play(n, v = .8) { if (!soundOn) return; const a = SFX[n].cloneNode(); a.volume = v; a.play().catch(() => { }) }
+function tone(f0, f1, dur, type = 'square', vol = .06) { if (!soundOn || !AC) return; const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime; o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f1, t + dur); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur) }
 const waka = () => tone(420, 180, .09), okBlip = () => { tone(520, 880, .08); setTimeout(() => tone(880, 1320, .08), 70) }, buzz = () => tone(140, 90, .28, 'sawtooth', .07);
-const SS = window.SnackSound, inShell = !!(SS && SS.inShell); /* shell sound button owns the music; OFF mutes the effects */
-if (SS && SS.onFadeout) SS.onFadeout(ms => { leaving = true; const sec = Math.max(.01, ms / 1000 * .9); if (AC && bus) { const t = AC.currentTime; bus.gain.cancelScheduledValues(t); bus.gain.setValueAtTime(bus.gain.value, t); bus.gain.linearRampToValueAtTime(0, t + sec) } live.forEach(a => rampVol(a, 0, sec * 1000, () => a.pause())); if (theme) rampVol(theme, 0, sec * 1000, () => theme.pause()); setTimeout(() => { try { AC && AC.suspend() } catch (e) { } }, sec * 1000 + 20) });
-if (inShell) { soundOn = SS.on; SS.onChange(m => { soundOn = m !== 'off' }); SS.onGesture(() => { try { if (AC && AC.state === 'suspended') AC.resume() } catch (e) { } }) }
-function startAudio() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)() } catch (e) { } if (inShell) { soundOn = SS.on; return } if (!theme) { theme = new Audio(AUDIO_BASE + 'snackman-theme' + ext); theme.loop = true; theme.volume = .35 } if (soundOn && theme.paused) themeOn(true) }
-$('sndBtn').onclick = () => { soundOn = !soundOn; $('sndBtn').textContent = soundOn ? '🔊' : '🔇'; if (theme) themeOn(soundOn) };
+function startAudio() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)() } catch (e) { } if (!theme) { theme = new Audio(AUDIO_BASE + 'snackman-theme' + ext); theme.loop = true; theme.volume = .35 } if (soundOn) theme.play().catch(() => { }) }
+$('sndBtn').onclick = () => { soundOn = !soundOn; $('sndBtn').textContent = soundOn ? '🔊' : '🔇'; if (theme) soundOn ? theme.play().catch(() => { }) : theme.pause() };
 
 /* ===== GRID MOVER (Pac-Man style) ===== */
 const mv = { x: 0, z: 0, dx: 0, dz: -1, t: 0, want: null, moving: true, speed: 4.2 };
@@ -172,7 +155,7 @@ function input(k) {
     setWant(k === 'up' ? f : k === 'down' ? [-f[0], -f[1]] : k === 'left' ? l : r); return }
   setWant(DIRS[k]);
 }
-addEventListener('keydown', e => { if (e.target && e.target.closest && e.target.closest('input,textarea,.jutz-ov')) return; const m = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' }[e.code]; if (m) { e.preventDefault(); input(m) } });
+addEventListener('keydown', e => { const m = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' }[e.code]; if (m) { e.preventDefault(); input(m) } });
 let sw = null;
 stage.addEventListener('pointerdown', e => { sw = { x: e.clientX, y: e.clientY, done: false } });
 stage.addEventListener('pointermove', e => { if (!sw || sw.done) return; const dx = e.clientX - sw.x, dy = e.clientY - sw.y; if (Math.hypot(dx, dy) > 22) { sw.done = true; input(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up')) } });
@@ -245,7 +228,7 @@ function tryPick() { if (held || !belt || !belt.arrive) return; held = belt; bel
 function p2Arrive(x, z) {
   if (x === PICK[0] && z === PICK[1]) tryPick();
   if (z === 0) { const g = GATES[GATE_X.indexOf(x)];
-    if (held) { if (held.it.d === g) { tally[g] += held.it.kg; sorted++; growLine(g); okBlip(); burst('POW!', snack.position, ST[g].color); heldSlot.remove(held.m); held = null; showHeld(); if (g === 'PYRO') setTimeout(poop, 200); if (sorted % 10 === 0) { play('snackman-hit', .8); toast(sorted + ' SORTED!<br>YOUR LINE IS GROWING'); try { const k = $('kit3d'); if (k && window.SnackKit && SnackKit.kitLoaded) k.hidden = false } catch (e) { } } panel() }
+    if (held) { if (held.it.d === g) { tally[g] += held.it.kg; sorted++; growLine(g); okBlip(); burst('POW!', snack.position, ST[g].color); heldSlot.remove(held.m); held = null; showHeld(); if (g === 'PYRO') setTimeout(poop, 200); if (sorted % 10 === 0) { play('snackman-hit', .8); toast(sorted + ' SORTED!<br>YOUR LINE IS GROWING') } panel() }
       else { wrong++; buzz(); burst('WRONG LINE', snack.position, '#F85898'); toast(RES[held.it.c] + ' ' + held.it.n.toUpperCase() + '<br>→ ' + ST[held.it.d].name, 1800) } }
     setWant([0, 1]) }
 }
@@ -332,5 +315,5 @@ resize(); requestAnimationFrame(frame);
 $('startBtn').onclick = () => { $('over').style.display = 'none'; running = true; startAudio(); toast('EAT ALL THE PLASTIC!<br><span style="font-size:10px">SWIPE / ARROWS</span>', 1800) };
 if (qs.get('phase') === '2') { $('over').style.display = 'none'; running = true; kg = A.PHASE1_GOAL_KG; hud(); startPhase2() }
 if (qs.has('autoplay')) { $('over').style.display = 'none'; running = true }
-window.SNACK3D = { A, tally, input, startPhase2, calc, GATE_X, GATES, get phase() { return phase }, get mv() { return mv }, get held() { return held }, get kg() { return kg }, get sorted() { return sorted },
+window.SNACK3D = { A, tally, input, startPhase2, calc, GATE_X, GATES, get phase() { return phase }, get mv() { return mv }, get held() { return held }, get kg() { return kg },
   demo(t) { for (const g in t) { tally[g] += t[g]; sorted += Math.round(t[g] / .6); for (let i = 0; i < Math.min(8, t[g] / .6); i++) growLine(g) } panel() } };
