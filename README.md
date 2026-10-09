@@ -117,3 +117,12 @@ Git history keeps them separate. Commit 1 is the verbatim import, and the second
 2. `shared/hub/*` replaces the server-backed hub with offline shims that use the same globals (`HWSave`, `HWLevelGate`, `HWClicks`, `HW`).
 
 The game JS (`levels.js`, `bonus3d.js`, `bid-game.js`, `three.module.min.js`) and all media are byte-identical to `live`.
+
+## No cacophony (team Rule #1)
+Two music sources never play at once. One audio manager (`music-switch.js`) owns all music: on every change
+(sound button, FORKASHI track change, 8-BIT theme change, game start/continue, hidden tab) the old source fades
+fully out (0.6 s) and stops, ~80 ms of silence, then the new one fades in (0.6 s). Rapid taps never stack: the last
+choice wins. Ducking (cards/recap) is a level ramp on the one active source. Notable SFX dip the music fully out,
+play, then the music comes back. Tuner: on `{type:'jaguarutz:audio', action:'fadeout', ms}` (any origin, exact
+shape only) all game audio (music + SFX) fades to 0 within `ms`, then the AudioContext is suspended; pagehide is
+the fallback. Tests: `tests/music-switch.test.mjs` (fake clock) and the Tuner test.

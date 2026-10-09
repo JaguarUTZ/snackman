@@ -33,7 +33,7 @@ const CFG=Object.assign({
     loop: [loopStart, loopEnd] in seconds inside the file (seamless loop region); omit loop for one-shot cues.
     vol:  0..1 per-cue level. Files are normalised to -14 LUFS, so 1 is right for most. */
  snackman:{spicy:true,theme:true}, /* theme:true = SNACKMAN theme plays while he is on screen (false keeps the bid loop) */ /* mascot thought bubble (campaign) */
- audio:{base:'audio/',formats:['ogg','m4a'],xfade:1.2,duck:0.25,
+ audio:{base:'audio/',formats:['ogg','m4a'],xfade:0.6,duck:0.25,
   cues:{
    act1: {file:'act1-fiatpocalypse-loop',   loop:[0.25,26.9161], vol:0.9}, /* Act 1 idle: Fiatpocalypse 1:01.94-1:28.60, 64 beats */
    sting:{file:'sting-fiatpocalypse-intro', vol:1},                        /* HANDOVER beat (EcoAlquimia arrives): "We are entering the Fiatpocalypse..." (0:04.6-0:15.3) */
@@ -519,7 +519,7 @@ const FurnaceOverlay=(function(){let el=null,raf=0,F=null,last=0;
   el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();close()});document.addEventListener('keydown',key,true);document.body.appendChild(el);last=0;raf=requestAnimationFrame(tick)}
  function close(fromPop){if(!el)return;if(fromPop!==true)window.PPSLayer.done('furnace');cancelAnimationFrame(raf);document.removeEventListener('keydown',key,true);el.remove();el=null;F=null}
  return {open,close,get isOpen(){return !!el}}})();
-/* ===== soundtrack engine (Web Audio; crossfades, seamless loops, ducked sting, chomp SFX) ===== */
+/* ===== soundtrack engine (Web Audio; NO CACOPHONY: one cue at a time, old fades fully out before the next fades in; seamless loops; notable SFX dip the music fully out; chomp SFX) ===== */
 const SND=(function(){
  const A=CFG.audio,KEY='ppsBidSound',AC=window.AudioContext||window.webkitAudioContext;
  if(!A||!AC)return null;
@@ -532,15 +532,20 @@ const SND=(function(){
  function lvl(){return enabled&&active?1:0}
  function master(){if(!ctx)return;const t=ctx.currentTime;out.gain.cancelScheduledValues(t);out.gain.setValueAtTime(out.gain.value,t);out.gain.linearRampToValueAtTime(lvl(),t+0.4)}
  function play(k){if(!ctx||!buf[k])return false;const c=A.cues[k],t=ctx.currentTime,X=A.xfade;
-  if(cur){const o=cur;o.g.gain.cancelScheduledValues(t);o.g.gain.setValueAtTime(o.g.gain.value,t);o.g.gain.linearRampToValueAtTime(0,t+X);try{o.s.stop(t+X+0.05)}catch(e){}}
+  /* sequential, never a crossfade: the current cue fades fully out over X and stops; the next starts at gain 0 after it and fades in over X.
+     A cue that was queued but has not started yet is cancelled (rapid changes never stack). */
+  let at=t;if(cur){const o=cur,pending=o.t0>t;o.g.gain.cancelScheduledValues(t);if(pending){o.g.gain.setValueAtTime(0,t);try{o.s.stop(t+0.01)}catch(e){}at=Math.max(t,o.t0-X)+X}else{o.g.gain.setValueAtTime(o.g.gain.value,t);o.g.gain.linearRampToValueAtTime(0,t+X);try{o.s.stop(t+X+0.02)}catch(e){}at=t+X+0.03}}
   const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf[k];
   if(c.loop){s.loop=true;s.loopStart=c.loop[0];s.loopEnd=Math.min(c.loop[1],buf[k].duration)}
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(c.vol==null?1:c.vol,t+(cur?X:0.25));s.connect(g);g.connect(mus);s.start(t,c.loop?c.loop[0]:0);cur={k,s,g,t0:t};return true}
+  g.gain.setValueAtTime(0,t);g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(c.vol==null?1:c.vol,at+(cur?X:0.25));s.connect(g);g.connect(mus);s.start(at,c.loop?c.loop[0]:0);cur={k,s,g,t0:at};return true}
  let lastPlop=0;
- function shot(k,dd){if(!ctx||!enabled||!buf[k])return;const c=A.cues[k],t=ctx.currentTime,s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf[k];g.gain.value=c.vol==null?1:c.vol;s.connect(g);g.connect(out);s.start(t);
-  if(dd>0){mus.gain.cancelScheduledValues(t);mus.gain.setValueAtTime(mus.gain.value,t);mus.gain.linearRampToValueAtTime(.35,t+.05);mus.gain.setValueAtTime(.35,t+dd);mus.gain.linearRampToValueAtTime(1,t+dd+.3)}}
- function sting(){if(!ctx||!buf.sting)return;const c=A.cues.sting,t=ctx.currentTime,d=buf.sting.duration;const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf.sting;g.gain.value=c.vol==null?1:c.vol;s.connect(g);g.connect(out);s.start(t);
-  try{window.SnackSound&&SnackSound.duck(Math.round(d*1000)+400)}catch(e){}mus.gain.cancelScheduledValues(t);mus.gain.setValueAtTime(mus.gain.value,t);mus.gain.linearRampToValueAtTime(A.duck,t+0.3);mus.gain.setValueAtTime(A.duck,t+d-0.6);mus.gain.linearRampToValueAtTime(1,t+d+0.4)}
+ function shot(k,dd){if(!ctx||!enabled||!buf[k])return;const c=A.cues[k],t=ctx.currentTime,s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf[k];g.gain.value=c.vol==null?1:c.vol;s.connect(g);g.connect(out);
+  /* a notable SFX (dd>0): the music dips fully out first, the SFX plays, then the music comes back (shell music too) */
+  let d0=0;if(dd>0){d0=Math.max(musicOn?.1:0,sfxDip(true,dd));mus.gain.cancelScheduledValues(t);mus.gain.setValueAtTime(mus.gain.value,t);mus.gain.linearRampToValueAtTime(0,t+.1);mus.gain.setValueAtTime(0,t+d0+dd);mus.gain.linearRampToValueAtTime(1,t+d0+dd+.4)}s.start(t+d0)}
+ function sfxDip(n,sec){try{return window.SnackSound&&SnackSound.sfx?SnackSound.sfx(n,sec):0}catch(e){return 0}}
+ function sting(){if(!ctx||!buf.sting)return;const c=A.cues.sting,t=ctx.currentTime,d=buf.sting.duration;const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf.sting;g.gain.value=c.vol==null?1:c.vol;s.connect(g);g.connect(out);
+  /* the sting is music: the soundtrack (and the shell's button music) dip fully out first, then it plays, then they come back */
+  const d0=Math.max(musicOn?.15:0,sfxDip(true,d));s.start(t+d0);mus.gain.cancelScheduledValues(t);mus.gain.setValueAtTime(mus.gain.value,t);mus.gain.linearRampToValueAtTime(0,t+.15);mus.gain.setValueAtTime(0,t+d0+d);mus.gain.linearRampToValueAtTime(1,t+d0+d+0.5)}
  function chomp(){if(!ctx||!A.chomp||!A.chomp.on)return;const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type='square';const f=(chompK++%2)?330:440;o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f/2.2,t+0.07);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(A.chomp.vol,t+0.005);g.gain.exponentialRampToValueAtTime(0.0005,t+0.09);o.connect(g);g.connect(out);o.start(t);o.stop(t+0.1)}
  function sync(){if(!ctx||!enabled)return;if(want&&(!cur||cur.k!==want))play(want)}
  function ui(){btns.forEach(b=>{b.textContent=enabled?'\u{1F507} SOUND OFF':'\u{1F50A} SOUND ON';b.setAttribute('aria-pressed',enabled?'true':'false');b.title=(enabled?'Mute':'Turn sound on')+' (M)';b.classList.toggle('on',enabled)})}
@@ -548,6 +553,8 @@ const SND=(function(){
  function disable(remember){enabled=false;if(remember)save('off');ui();master()}
  function gesture(e){if(e.target&&e.target.closest&&e.target.closest('[data-snd]'))return;document.removeEventListener('pointerdown',gesture,true);document.removeEventListener('keydown',gesture,true);if(enabled)return;if(window.SnackSound&&SnackSound.inShell&&!SnackSound.on)return;if(pref()==='off')return;e.__sndUnlock=1;enable(false)}
  document.addEventListener('pointerdown',gesture,true);document.addEventListener('keydown',gesture,true);
+ /* Tuner channel switch / pagehide: fade everything (music + SFX) to 0 within ms, then suspend */
+ try{window.SnackSound&&SnackSound.onFadeout&&SnackSound.onFadeout(ms=>{if(!ctx)return;const t=ctx.currentTime,sec=Math.max(.01,ms/1000*.9);out.gain.cancelScheduledValues(t);out.gain.setValueAtTime(out.gain.value,t);out.gain.linearRampToValueAtTime(0,t+sec);enabled=false;setTimeout(()=>{try{ctx.suspend()}catch(e){}},sec*1000+20)})}catch(e){}
  return {
   on(n){if(n==='pop')return chomp();
    if(n==='plop'){if(ctx&&ctx.currentTime-lastPlop>.8){lastPlop=ctx.currentTime;shot('plop',0)}return}

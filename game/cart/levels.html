@@ -93,11 +93,14 @@ body{font-family:"Press Start 2P",ui-monospace,monospace;-webkit-tap-highlight-c
 /* sound helpers (verbatim from the Roadmap v2 page; the level engine calls snd/AC/beep/play) */
 let snd=false,AC=null,buf={};
 function ensureAC(){if(AC)return;AC=new (window.AudioContext||window.webkitAudioContext)();const ext=new Audio().canPlayType('audio/ogg; codecs="vorbis"')?'ogg':'m4a';['plop','hit'].forEach(n=>fetch('a/snackman-'+n+'.'+ext).then(r=>r.arrayBuffer()).then(b=>AC.decodeAudioData(b)).then(d=>buf[n]=d).catch(()=>{}))}
-function play(n,v){if(!snd||!AC||!buf[n])return;const s=AC.createBufferSource(),g=AC.createGain();g.gain.value=v||.7;s.buffer=buf[n];s.connect(g).connect(AC.destination);s.start()}
-function beep(f,d,when,type,v){if(!snd||!AC)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+(when||0);o.type=type||'square';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v||.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)}
+/* SFX go through one bus (lvOut) so the Tuner fadeout can ramp them to 0. NO CACOPHONY: a hit dips the shell music fully out first. */
+let lvBus=null;function lvOut(){if(!lvBus){lvBus=AC.createGain();lvBus.gain.value=1;lvBus.connect(AC.destination)}return lvBus}
+function play(n,v){if(!snd||!AC||!buf[n]||(SNDSS&&SNDSS.leaving))return;const s=AC.createBufferSource(),g=AC.createGain();g.gain.value=v||.7;s.buffer=buf[n];s.connect(g).connect(lvOut());const d0=SNDSS&&SNDSS.sfx?SNDSS.sfx(n==='hit',buf[n].duration):0;s.start(AC.currentTime+d0)}
+function beep(f,d,when,type,v){if(!snd||!AC)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+(when||0);o.type=type||'square';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v||.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(lvOut());o.start(t);o.stop(t+d+.02)}
 document.getElementById('snd').onclick=()=>{snd=!snd;if(snd){ensureAC();AC.resume&&AC.resume();beep(784,.1);beep(1047,.12,.1)}};
 /* sound on at first tap/key, like a console */
 const SNDSS=window.SnackSound,sndInShell=!!(SNDSS&&SNDSS.inShell);
+if(SNDSS&&SNDSS.onFadeout)SNDSS.onFadeout(ms=>{if(!AC)return;const t=AC.currentTime,sec=Math.max(.01,ms/1000*.9);if(lvBus){lvBus.gain.cancelScheduledValues(t);lvBus.gain.setValueAtTime(lvBus.gain.value,t);lvBus.gain.linearRampToValueAtTime(0,t+sec)}setTimeout(()=>{try{AC.suspend()}catch(e){}},sec*1000+20)});
 const unlock=()=>{if(sndInShell){snd=SNDSS.on;if(snd){ensureAC();AC.resume&&AC.resume()}}else if(!snd)document.getElementById('snd').click();removeEventListener('pointerdown',unlock,true);removeEventListener('keydown',unlock,true)};
 /* shell sound button: OFF mutes the effects; 8-BIT/FORKASHI keep them. Music ducks while a level card is up. */
 if(sndInShell){SNDSS.onChange(m=>{snd=m!=='off';if(snd){ensureAC();AC.resume&&AC.resume()}});SNDSS.onGesture(()=>{if(snd&&AC&&AC.state==='suspended')AC.resume()});
