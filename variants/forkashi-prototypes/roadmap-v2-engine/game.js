@@ -1,4 +1,4 @@
-/* Snackman Roadmap v2: the playable levels (Pac-Man style). Vanilla canvas, no deps.
+/* Snackman Roadmap v2: the playable levels (classic maze-chase style). Vanilla canvas, no deps.
    Uses the story page's sound helpers (snd, ensureAC, beep, play) and Snackman sprite (spr) when present. */
 (function(){
 'use strict';

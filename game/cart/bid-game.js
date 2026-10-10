@@ -343,7 +343,7 @@ function create(cv){
   s.bricks.forEach(k=>{ctx.fillStyle=k.c;ctx.fillRect(k.x|0,k.y|0,2,2)});
   s.poops.forEach(q=>{ctx.globalAlpha=Math.min(1,q.l*2);SNACK.coin(ctx,q.x,q.y,s.pac&&s.pac.r>=8?7:4);ctx.globalAlpha=1});
   if(s.pac&&s.pac.alive>0){const pc=s.pac,r=pc.r*pc.alive,open=Math.abs(Math.sin(t*10))*0.8;ctx.globalAlpha=Math.min(1,pc.alive*1.5);
-   SNACK.draw(ctx,pc.x,pc.y,r*2.2,pc.face||1,open,t-(pc.poopT||-9)<.12,t); /* SNACKMAN replaces the old Pac-Man */
+   SNACK.draw(ctx,pc.x,pc.y,r*2.2,pc.face||1,open,t-(pc.poopT||-9)<.12,t); /* SNACKMAN replaces the old chomper */
    txt('BID',pc.x,pc.y-r*1.7-8,NES.white,5,'center');ctx.globalAlpha=1}
   s.pops.forEach(q=>{ctx.globalAlpha=Math.max(0,q.l);txt('BID!',q.x,q.y,q.c,8,'center');ctx.globalAlpha=1});
   s.bursts.forEach(b=>SNACK.burst(ctx,b,t,F,W,184));

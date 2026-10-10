@@ -134,7 +134,7 @@ const waka = () => tone(420, 180, .09), okBlip = () => { tone(520, 880, .08); se
 function startAudio() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)() } catch (e) { } if (!theme) { theme = new Audio(AUDIO_BASE + 'snackman-theme' + ext); theme.loop = true; theme.volume = .35 } if (soundOn) theme.play().catch(() => { }) }
 $('sndBtn').onclick = () => { soundOn = !soundOn; $('sndBtn').textContent = soundOn ? '🔊' : '🔇'; if (theme) soundOn ? theme.play().catch(() => { }) : theme.pause() };
 
-/* ===== GRID MOVER (Pac-Man style) ===== */
+/* ===== GRID MOVER (classic maze-chase style) ===== */
 const mv = { x: 0, z: 0, dx: 0, dz: -1, t: 0, want: null, moving: true, speed: 4.2 };
 let passable = () => true, onArrive = () => { };
 function setWant(d) { mv.want = d; if (!mv.moving) tryStart() }
