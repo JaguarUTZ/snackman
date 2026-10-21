@@ -18,28 +18,27 @@ const A = {
   PHASE1_GOAL_KG: 12,       // game kg to eat before sorting starts
   POOP_EVERY: 4,            // ₿ poop every N bites
 };
+/* i18n: all player-facing text comes from game/shared/i18n/strings.js (b3.* keys) */
+const T = (k, v) => { try { return window.SNK ? SNK.t(k, v) : k } catch (e) { return k } };
 const AUDIO_BASE = 'audio/'; /* shelf copy: sounds bundled next to this file */  // Snackman sounds shared with the 2D game
 
 /* ===== STREAMS (EcoAlquimia wording from the deck's "Every stream has a buyer") ===== */
-const ST = {
-  SOLD: { name: 'SOLD · BALER LINE', short: 'SOLD', color: '#4FC3F7', out: 'PET + rigid HDPE bales: high-value recyclables, sold' },
-  PYRO: { name: 'PYROLYSIS → OIL', short: 'PYRO', color: '#FC9838', out: 'films · multilayer · low-value plastics → oil: heat, fuel, power, ₿' },
-  CONC: { name: 'CONCRETO PLÁSTICO', short: '#7', color: '#58D854', out: 'hard "non-recyclables" → covers · EcoTabla · Formaleta' },
-  PVC:  { name: 'PVC REJECT', short: 'PVC', color: '#F85898', out: 'special handling, never pyrolysis (chlorine)' },
-};
+const ST = { SOLD: { color: '#4FC3F7' }, PYRO: { color: '#FC9838' }, CONC: { color: '#58D854' }, PVC: { color: '#F85898' } };
+for (const g in ST) Object.defineProperties(ST[g], { name: { get: () => T('b3.st.' + g) }, short: { get: () => T('b3.st.' + g + '.short') }, out: { get: () => T('b3.st.' + g + '.out') } });
 const GATES = ['SOLD', 'PYRO', 'CONC', 'PVC'];
 const RES = ['', '♳', '♴', '♵', '♶', '♷', '♸', '♹'];
 const ITEMS = [
-  { c: 1, n: 'PET bottle', sub: 'rigid', d: 'SOLD', kg: .6, w: 14, shape: 'bottle', col: 0x9fe3ff },
-  { c: 2, n: 'HDPE jug', sub: 'rigid', d: 'SOLD', kg: 1.2, w: 7, shape: 'jug', col: 0xf2f2f2 },
-  { c: 2, n: 'HDPE bag', sub: 'film', d: 'PYRO', kg: .2, w: 8, shape: 'bag', col: 0xe8e8e8 },
-  { c: 3, n: 'PVC pipe', sub: 'rigid', d: 'PVC', kg: 1.6, w: 4, shape: 'pipe', col: 0x9e9e9e },
-  { c: 4, n: 'LDPE film', sub: 'film', d: 'PYRO', kg: .2, w: 12, shape: 'bag', col: 0xbfe0ff },
-  { c: 5, n: 'PP tub / cap', sub: 'rigid', d: 'PYRO', kg: .4, w: 10, shape: 'tub', col: 0xff5252 },
-  { c: 6, n: 'PS foam cup', sub: 'foam', d: 'PYRO', kg: .1, w: 6, shape: 'cup', col: 0xffffff },
-  { c: 7, n: 'Mixed hard plastic', sub: 'hard "non-recyclable"', d: 'CONC', kg: 2, w: 14, shape: 'chunk', col: 0x6d4c41 },
-  { c: 7, n: 'Multilayer snack bag', sub: 'multilayer', d: 'PYRO', kg: .2, w: 10, shape: 'snack', col: 0xffc107 },
+  { c: 1, id: 0, sk: 'rigid', d: 'SOLD', kg: .6, w: 14, shape: 'bottle', col: 0x9fe3ff },
+  { c: 2, id: 1, sk: 'rigid', d: 'SOLD', kg: 1.2, w: 7, shape: 'jug', col: 0xf2f2f2 },
+  { c: 2, id: 2, sk: 'film', d: 'PYRO', kg: .2, w: 8, shape: 'bag', col: 0xe8e8e8 },
+  { c: 3, id: 3, sk: 'rigid', d: 'PVC', kg: 1.6, w: 4, shape: 'pipe', col: 0x9e9e9e },
+  { c: 4, id: 4, sk: 'film', d: 'PYRO', kg: .2, w: 12, shape: 'bag', col: 0xbfe0ff },
+  { c: 5, id: 5, sk: 'rigid', d: 'PYRO', kg: .4, w: 10, shape: 'tub', col: 0xff5252 },
+  { c: 6, id: 6, sk: 'foam', d: 'PYRO', kg: .1, w: 6, shape: 'cup', col: 0xffffff },
+  { c: 7, id: 7, sk: 'hard', d: 'CONC', kg: 2, w: 14, shape: 'chunk', col: 0x6d4c41 },
+  { c: 7, id: 8, sk: 'multilayer', d: 'PYRO', kg: .2, w: 10, shape: 'snack', col: 0xffc107 },
 ];
+ITEMS.forEach(it => Object.defineProperties(it, { n: { get: () => T('b3.it' + it.id) }, sub: { get: () => T('b3.sub.' + it.sk) } }));
 const WSUM = ITEMS.reduce((a, b) => a + b.w, 0);
 const pick = () => { let r = Math.random() * WSUM; for (const it of ITEMS) { if ((r -= it.w) < 0) return it } return ITEMS[0] };
 
@@ -65,7 +64,7 @@ addEventListener('resize', resize); new ResizeObserver(resize).observe(stage);
 /* ===== TEXTURE HELPERS ===== */
 function canvasTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t }
 function textSprite(txt, color = '#FFD400', size = 1.6, bg = null) {
-  const t = canvasTex(256, 96, (x, w, h) => { if (bg) { x.fillStyle = bg; x.fillRect(0, 0, w, h) } x.font = '900 54px Impact, "Arial Black", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineWidth = 10; x.strokeStyle = '#000'; x.strokeText(txt, w / 2, h / 2); x.fillStyle = color; x.fillText(txt, w / 2, h / 2) });
+  const t = canvasTex(256, 96, (x, w, h) => { if (bg) { x.fillStyle = bg; x.fillRect(0, 0, w, h) } let fz = 54; x.font = '900 ' + fz + 'px Impact, "Arial Black", sans-serif'; while (fz > 24 && x.measureText(txt).width > w - 16) { fz -= 4; x.font = '900 ' + fz + 'px Impact, "Arial Black", sans-serif' } x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineWidth = 10; x.strokeStyle = '#000'; x.strokeText(txt, w / 2, h / 2); x.fillStyle = color; x.fillText(txt, w / 2, h / 2) });
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthTest: false })); s.scale.set(size, size * .375, 1); s.renderOrder = 10; return s;
 }
 const hatLogo = canvasTex(128, 128, (x) => { // curved-up arrow mark (EcoAlquimia logo style)
@@ -160,14 +159,15 @@ let sw = null;
 stage.addEventListener('pointerdown', e => { sw = { x: e.clientX, y: e.clientY, done: false } });
 stage.addEventListener('pointermove', e => { if (!sw || sw.done) return; const dx = e.clientX - sw.x, dy = e.clientY - sw.y; if (Math.hypot(dx, dy) > 22) { sw.done = true; input(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up')) } });
 addEventListener('pointerup', () => { sw = null });
-$('camBtn').onclick = () => { camMode = camMode === 'TOP' ? 'BEHIND' : 'TOP'; $('camBtn').textContent = 'CAM: ' + camMode };
-$('camBtn').textContent = 'CAM: ' + camMode;
+const camLabel = () => { $('camBtn').textContent = T(camMode === 'TOP' ? 'b3.camTop' : 'b3.camBehind') };
+$('camBtn').onclick = () => { camMode = camMode === 'TOP' ? 'BEHIND' : 'TOP'; camLabel() };
+camLabel();
 
 /* ===== HUD ===== */
 let kg = 0, btc = 0, bites = 0, phase = 1;
 function toast(t, ms = 1400) { const el = $('toast'); el.innerHTML = t; el.style.opacity = 1; clearTimeout(toast.h); toast.h = setTimeout(() => el.style.opacity = 0, ms) }
 function hud() { $('kg').textContent = kg.toFixed(1); $('btc').textContent = btc; $('bar').firstElementChild.style.width = Math.min(100, kg / A.PHASE1_GOAL_KG * 100) + '%' }
-function poop(extraMsg) { btc++; const b = new THREE.Vector3(snack.position.x - mv.dx * .6, 0, snack.position.z - mv.dz * .6); coin(b); burst('PFFT!', b, '#FC9838'); play('snackman-plop', .8); hud() }
+function poop(extraMsg) { btc++; const b = new THREE.Vector3(snack.position.x - mv.dx * .6, 0, snack.position.z - mv.dz * .6); coin(b); burst(T('b3.pfft'), b, '#FC9838'); play('snackman-plop', .8); hud() }
 
 /* ===== PHASE 1: THE BID (river) ===== */
 const W1 = 13, L1 = 90, p1 = new THREE.Group(); scene.add(p1);
@@ -192,8 +192,8 @@ const rock = new Set(), trash = new Map(); const key = (x, z) => x + ',' + z;
 const X1 = x => x - (W1 - 1) / 2;
 function p1Passable(x, z) { return x >= 1 && x <= W1 - 2 && z >= 0 && z <= L1 + 1 && !rock.has(key(x, z)) }
 function p1Arrive(x, z) { const t = trash.get(key(x, z)); if (!t || !t.alive) return; t.alive = false; trash.delete(key(x, z)); kg += t.kg; bites++; eatAt = clock.elapsedTime;
-  waka(); burst(bites % 5 === 0 ? 'POW!' : 'CHOMP!', snack.position, bites % 5 === 0 ? '#FC9838' : '#FFD400'); if (bites % A.POOP_EVERY === 0) setTimeout(poop, 250); hud();
-  if (kg >= A.PHASE1_GOAL_KG && phase === 1) { phase = 1.5; play('snackman-hit', .9); toast('THE BID IS IN!<br>' + kg.toFixed(1) + ' KG EATEN<br><br>NOW SORT IT ▸', 2400); setTimeout(startPhase2, 2200) } }
+  waka(); burst(bites % 5 === 0 ? T('b3.pow') : T('b3.chomp'), snack.position, bites % 5 === 0 ? '#FC9838' : '#FFD400'); if (bites % A.POOP_EVERY === 0) setTimeout(poop, 250); hud();
+  if (kg >= A.PHASE1_GOAL_KG && phase === 1) { phase = 1.5; play('snackman-hit', .9); toast(T('b3.bidIn', { kg: kg.toFixed(1) }), 2400); setTimeout(startPhase2, 2200) } }
 const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _v = new THREE.Vector3(), _s = new THREE.Vector3();
 function stepTrash(t) { const cz = snack.position.z; for (const im of p1.userData.inst) { let dirty = false; for (const it of im.userData.list) { if (Math.abs(it.z - cz) > 22 && it.alive) continue; const sc = it.alive ? 1 : 0; _q.setFromAxisAngle(_v.set(0, 1, 0), it.ph + t * .5); _m.compose(_s.set(X1(it.x), .12 + Math.sin(t * 2 + it.ph) * .05, it.z), _q, new THREE.Vector3(sc, sc, sc)); im.setMatrixAt(it.j, _m); dirty = true } if (dirty) im.instanceMatrix.needsUpdate = true } }
 
@@ -202,6 +202,8 @@ const W2 = 9, p2 = new THREE.Group(); p2.visible = false; scene.add(p2);
 const GATE_X = [1, 3, 5, 7], PICK = [4, 9];
 const tally = { SOLD: 0, PYRO: 0, CONC: 0, PVC: 0 }; let held = null, belt = null, sorted = 0, wrong = 0;
 const lines = {};
+const gateLab = {};
+function relabelGates() { for (const g in gateLab) { const o = gateLab[g], n = textSprite(ST[g].short, ST[g].color, 1.3); n.position.copy(o.lab.position); p2.remove(o.lab); p2.add(n); o.lab = n } }
 function buildFloor() {
   const floor = new THREE.Mesh(new THREE.BoxGeometry(W2, .2, 9), new THREE.MeshLambertMaterial({ color: 0x6f6f6f })); floor.position.set(0, -.1, 4.5); p2.add(floor);
   const grid = new THREE.GridHelper(9, 9, 0x555555, 0x555555); grid.position.set(0, .01, 4.5); p2.add(grid);
@@ -211,7 +213,7 @@ function buildFloor() {
     for (const s of [-.45, .45]) { const p = new THREE.Mesh(new THREE.BoxGeometry(.12, 1.4, .12), mat); p.position.set(x + s, .7, -.1); p2.add(p) }
     const top = new THREE.Mesh(new THREE.BoxGeometry(1.1, .18, .16), mat); top.position.set(x, 1.4, -.1); p2.add(top);
     const pad = new THREE.Mesh(new THREE.PlaneGeometry(.9, .9), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: .45 })); pad.rotation.x = -Math.PI / 2; pad.position.set(x, .02, 0); p2.add(pad);
-    const lab = textSprite(ST[g].short, ST[g].color, 1.3); lab.position.set(x, 1.95, -.1); p2.add(lab);
+    const lab = textSprite(ST[g].short, ST[g].color, 1.3); lab.position.set(x, 1.95, -.1); p2.add(lab); gateLab[g] = { lab, x };
     const grp = new THREE.Group(); grp.position.set(x, 0, -2.2); p2.add(grp); lines[g] = grp; });
 }
 function growLine(g) {
@@ -222,19 +224,19 @@ function growLine(g) {
   if (g === 'PVC') { if (!grp.userData.bin) { const bin = new THREE.Mesh(new THREE.BoxGeometry(.9, .8, .7), new THREE.MeshLambertMaterial({ color: 0xF85898, transparent: true, opacity: .55 })); bin.position.y = .4; grp.add(bin); const fill = new THREE.Mesh(new THREE.BoxGeometry(.8, 1, .6), new THREE.MeshLambertMaterial({ color: 0x9e9e9e })); fill.scale.y = .01; fill.position.y = .01; grp.add(fill); grp.userData.bin = bin; grp.userData.fill = fill } const f = grp.userData.fill; f.scale.y = Math.min(.75, f.scale.y + .12); f.position.y = f.scale.y / 2 + .02 }
 }
 function nextItem() { const it = pick(), m = itemMesh(it); m.scale.setScalar(1.6); m.position.set(7, .35, 9.2); p2.add(m); belt = { it, m, arrive: 0 } }
-function showHeld() { const el = $('held'); if (!held) { el.style.display = 'none'; return } el.style.display = 'block'; el.innerHTML = '<div class="code">' + RES[held.it.c] + ' ' + held.it.c + '</div>' + held.it.n.toUpperCase() + ' <span style="color:#9a9a9a">(' + held.it.sub + ')</span><div style="margin-top:4px;color:#58D854">ROLL IT TO ITS LINE ▲</div>' }
+function showHeld() { const el = $('held'); if (!held) { el.style.display = 'none'; return } el.style.display = 'block'; el.innerHTML = '<div class="code">' + RES[held.it.c] + ' ' + held.it.c + '</div>' + held.it.n.toUpperCase() + ' <span style="color:#9a9a9a">(' + held.it.sub + ')</span><div style="margin-top:4px;color:#58D854">' + T('b3.roll') + '</div>' }
 function p2Passable(x, z) { if (z === 9) return x === PICK[0]; if (z === 0) return GATE_X.includes(x); return x >= 0 && x < W2 && z >= 1 && z <= 8 }
-function tryPick() { if (held || !belt || !belt.arrive) return; held = belt; belt = null; p2.remove(held.m); held.m.scale.setScalar(1.3); held.m.position.set(0, 0, 0); heldSlot.add(held.m); waka(); burst('CHOMP!', snack.position); showHeld(); setTimeout(nextItem, 500); setWant([0, -1]) }
+function tryPick() { if (held || !belt || !belt.arrive) return; held = belt; belt = null; p2.remove(held.m); held.m.scale.setScalar(1.3); held.m.position.set(0, 0, 0); heldSlot.add(held.m); waka(); burst(T('b3.chomp'), snack.position); showHeld(); setTimeout(nextItem, 500); setWant([0, -1]) }
 function p2Arrive(x, z) {
   if (x === PICK[0] && z === PICK[1]) tryPick();
   if (z === 0) { const g = GATES[GATE_X.indexOf(x)];
-    if (held) { if (held.it.d === g) { tally[g] += held.it.kg; sorted++; growLine(g); okBlip(); burst('POW!', snack.position, ST[g].color); heldSlot.remove(held.m); held = null; showHeld(); if (g === 'PYRO') setTimeout(poop, 200); if (sorted % 10 === 0) { play('snackman-hit', .8); toast(sorted + ' SORTED!<br>YOUR LINE IS GROWING') } panel() }
-      else { wrong++; buzz(); burst('WRONG LINE', snack.position, '#F85898'); toast(RES[held.it.c] + ' ' + held.it.n.toUpperCase() + '<br>→ ' + ST[held.it.d].name, 1800) } }
+    if (held) { if (held.it.d === g) { tally[g] += held.it.kg; sorted++; growLine(g); okBlip(); burst(T('b3.pow'), snack.position, ST[g].color); heldSlot.remove(held.m); held = null; showHeld(); if (g === 'PYRO') setTimeout(poop, 200); if (sorted % 10 === 0) { play('snackman-hit', .8); toast(T('b3.sortedN', { n: sorted })) } panel() }
+      else { wrong++; buzz(); burst(T('b3.wrong'), snack.position, '#F85898'); toast(RES[held.it.c] + ' ' + held.it.n.toUpperCase() + '<br>→ ' + ST[held.it.d].name, 1800) } }
     setWant([0, 1]) }
 }
 function startPhase2() {
   phase = 2; p1.visible = false; p2.visible = true; document.body.classList.add('p2'); scene.fog.near = 30; scene.fog.far = 60; scene.background.set(0x9fb8c8);
-  $('phase').textContent = 'PHASE 2 · SORTING'; $('skipBtn').style.display = 'none'; $('camBtn').style.display = 'none';
+  $('phase').textContent = T('b3.phase2'); $('skipBtn').style.display = 'none'; $('camBtn').style.display = 'none';
   if (!p2.children.length) buildFloor();
   passable = p2Passable; onArrive = p2Arrive; Object.assign(mv, { x: 4, z: 7, dx: 0, dz: 1, t: 0, want: null, moving: true, speed: 4.6 }); nextItem(); panel(); resize();
 }
@@ -254,21 +256,22 @@ function calc() {
 }
 function panel() {
   const c = calc(), any = sorted > 0;
-  $('tally').innerHTML = '<tr class="small"><td>Stream</td><td class="n">sorted (game kg)</td><td class="n">share</td><td class="n">t/yr*</td></tr>' + GATES.map(g => '<tr><td><span class="sw" style="background:' + ST[g].color + '"></span>' + ST[g].name + '<div class="small">' + ST[g].out + '</div></td><td class="n">' + tally[g].toFixed(1) + '</td><td class="n">' + (any ? Math.round(c.sh[g] * 100) : 0) + '%</td><td class="n">' + (any ? fmt(c.tpy[g]) : '–') + '</td></tr>').join('');
-  $('scale').innerHTML = '*Example: your sorted mix scaled to a <select id="tpy" style="background:#000;color:#FFD400;border:1px solid #444;font:inherit">' + [1000, 5000, 20000].map(v => '<option value="' + v + '"' + (v === plantTpy ? ' selected' : '') + '>' + fmt(v) + ' t/yr</option>').join('') + '</select> plant. <b style="color:#FC9838">ILLUSTRATION</b>. ' + sorted + ' sorted · ' + wrong + ' wrong line';
+  $('tally').innerHTML = '<tr class="small"><td>' + T('b3.th.stream') + '</td><td class="n">' + T('b3.th.sorted') + '</td><td class="n">' + T('b3.th.share') + '</td><td class="n">' + T('b3.th.tpy') + '</td></tr>' + GATES.map(g => '<tr><td><span class="sw" style="background:' + ST[g].color + '"></span>' + ST[g].name + '<div class="small">' + ST[g].out + '</div></td><td class="n">' + tally[g].toFixed(1) + '</td><td class="n">' + (any ? Math.round(c.sh[g] * 100) : 0) + '%</td><td class="n">' + (any ? fmt(c.tpy[g]) : '–') + '</td></tr>').join('');
+  $('scale').innerHTML = T('b3.scale1') + ' <select id="tpy" style="background:#000;color:#FFD400;border:1px solid #444;font:inherit">' + [1000, 5000, 20000].map(v => '<option value="' + v + '"' + (v === plantTpy ? ' selected' : '') + '>' + fmt(v) + ' ' + T('b3.tpy') + '</option>').join('') + '</select>' + (T('b3.scale2') === '.' ? '.' : ' ' + T('b3.scale2')) + ' <b style="color:#FC9838">' + T('b3.ill') + '</b>.<br>' + T('b3.sortedWrong', { s: sorted, w: wrong });
   $('tpy').onchange = e => { plantTpy = +e.target.value; panel() };
   $('diag').innerHTML = diagram(c, any);
-  $('assump').innerHTML = 'Assumptions (edit at top of game.js): ' + A.DAYS + ' days × ' + A.HOURS + ' h · baler ' + A.BALER_TPH + ' t/h · ' + A.RETORTS_PER_REACTOR + ' retorts/reactor × ' + A.RETORT_TPD + ' t/day · ' + A.KG_PER_GAL + ' kg → 1 gal · ' + A.KWH_PER_GAL + ' kWh/gal · ' + A.SATS_PER_KG + ' sats/kg gross proxy · block line ' + A.CONCRETE_LINE_TPD + ' t/day · ' + A.COVER_PLASTIC_KG + ' kg plastic per cover. All ILLUSTRATION.';
+  $('assump').innerHTML = T('b3.assump', { days: A.DAYS, hours: A.HOURS, baler: A.BALER_TPH, rpr: A.RETORTS_PER_REACTOR, rtpd: A.RETORT_TPD, kgg: A.KG_PER_GAL, kwh: A.KWH_PER_GAL, sats: A.SATS_PER_KG, cl: A.CONCRETE_LINE_TPD, cov: A.COVER_PLASTIC_KG });
 }
 function diagram(c, any) {
   const W = 360, rowH = 64, top = 30, H = top + rowH * 4 + 18; let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="9" fill="#ddd">';
-  s += '<text x="8" y="16" fill="#FC9838" font-weight="700">ILLUSTRATION · ' + fmt(plantTpy) + ' t/yr</text>';
-  s += '<rect x="6" y="' + (top + 4) + '" width="58" height="' + (rowH * 4 - 8) + '" rx="6" fill="#222" stroke="#FFD400"/><text x="35" y="' + (top + rowH * 2) + '" text-anchor="middle" fill="#FFD400" font-weight="700" transform="rotate(-90 35 ' + (top + rowH * 2) + ')">SORTING FLOOR</text>';
+  const one = (n, k1, kN, v) => T(n === 1 ? k1 : kN, Object.assign({ n }, v));
+  s += '<text x="8" y="16" fill="#FC9838" font-weight="700">' + T('b3.d.ill', { n: fmt(plantTpy) }) + '</text>';
+  s += '<rect x="6" y="' + (top + 4) + '" width="58" height="' + (rowH * 4 - 8) + '" rx="6" fill="#222" stroke="#FFD400"/><text x="35" y="' + (top + rowH * 2) + '" text-anchor="middle" fill="#FFD400" font-weight="700" transform="rotate(-90 35 ' + (top + rowH * 2) + ')">' + T('b3.d.floor') + '</text>';
   const rows = [
-    ['SOLD', 'BALER LINE', c.balers, 'box', (any ? fmt(c.tpy.SOLD) : 0) + ' t/yr bales · ' + c.balers + ' baler' + (c.balers === 1 ? '' : 's')],
-    ['PYRO', 'PYROLYSIS', c.reactors, 'reactor', c.reactors + ' reactor' + (c.reactors === 1 ? '' : 's') + ' × ' + A.RETORTS_PER_REACTOR + ' retorts', fmt(c.gal) + ' gal oil · ' + fmt(c.mwh) + ' MWh · ≈' + c.btcY.toFixed(2) + ' ₿/yr gross'],
-    ['CONC', 'CONCRETO PLÁSTICO', c.clines, 'cover', c.clines + ' block line' + (c.clines === 1 ? '' : 's'), '≈' + fmt(c.covers) + ' covers/yr (like the photo)'],
-    ['PVC', 'PVC REJECT BIN', any && c.tpy.PVC > 0 ? 1 : 0, 'bin', (any ? fmt(c.tpy.PVC) : 0) + ' t/yr · special handling'],
+    ['SOLD', T('b3.d.baler'), c.balers, 'box', one(c.balers, 'b3.d.sold1', 'b3.d.soldN', { t: any ? fmt(c.tpy.SOLD) : 0 })],
+    ['PYRO', T('b3.d.pyro'), c.reactors, 'reactor', one(c.reactors, 'b3.d.react1', 'b3.d.reactN', { r: A.RETORTS_PER_REACTOR }), T('b3.d.oil', { gal: fmt(c.gal), mwh: fmt(c.mwh), btc: c.btcY.toFixed(2) })],
+    ['CONC', T('b3.d.conc'), c.clines, 'cover', one(c.clines, 'b3.d.block1', 'b3.d.blockN'), T('b3.d.covers', { n: fmt(c.covers) })],
+    ['PVC', T('b3.d.pvc'), any && c.tpy.PVC > 0 ? 1 : 0, 'bin', T('b3.d.pvcNote', { t: any ? fmt(c.tpy.PVC) : 0 })],
   ];
   rows.forEach(([g, lab, n, kind, note, note2], i) => { const y = top + i * rowH, col = ST[g].color, share = any ? c.sh[g] : 0;
     s += '<path d="M64 ' + (y + rowH / 2) + ' H84" stroke="' + col + '" stroke-width="' + (1 + share * 10).toFixed(1) + '"/>';
@@ -279,7 +282,7 @@ function diagram(c, any) {
       if (kind === 'cover') s += '<image href="cover7.webp" x="' + x + '" y="' + (y + 17) + '" width="24" height="24"/>';
       if (kind === 'bin') s += '<rect x="' + x + '" y="' + (y + 19) + '" width="26" height="20" rx="2" fill="none" stroke="' + col + '"/><rect x="' + (x + 2) + '" y="' + (y + 29) + '" width="22" height="8" fill="' + col + '"/>'; }
     if (n > 8) s += '<text x="' + (88 + 8 * 30) + '" y="' + (y + 33) + '">+' + (n - 8) + '</text>';
-    if (!n) s += '<text x="88" y="' + (y + 33) + '" fill="#666">(nothing sorted here yet)</text>';
+    if (!n) s += '<text x="88" y="' + (y + 33) + '" fill="#666">' + T('b3.d.none') + '</text>';
     const bw = Math.max(0, share * (W - 96)); s += '<rect x="88" y="' + (y + 45) + '" width="' + bw.toFixed(1) + '" height="4" fill="' + col + '"/>';
     s += '<text x="88" y="' + (y + 59) + '" fill="#aaa">' + note + '</text>'; if (note2 && n) s += '<text x="' + (W - 4) + '" y="' + (y + 13) + '" text-anchor="end" fill="#fff" font-weight="700">' + note2 + '</text>' });
   return s + '</svg>';
@@ -312,8 +315,12 @@ function frame() {
   stepFx(dt); renderer.render(scene, camera); requestAnimationFrame(frame);
 }
 resize(); requestAnimationFrame(frame);
-$('startBtn').onclick = () => { $('over').style.display = 'none'; running = true; startAudio(); toast('EAT ALL THE PLASTIC!<br><span style="font-size:10px">SWIPE / ARROWS</span>', 1800) };
+$('startBtn').onclick = () => { $('over').style.display = 'none'; running = true; startAudio(); toast(T('b3.eatAll') + '<br><span style="font-size:14px">' + T('b3.swipe') + '</span>', 1800) };
 if (qs.get('phase') === '2') { $('over').style.display = 'none'; running = true; kg = A.PHASE1_GOAL_KG; hud(); startPhase2() }
 if (qs.has('autoplay')) { $('over').style.display = 'none'; running = true }
+/* language switch: HUD labels, held card, gate signs and the factory panel follow the new language */
+const phaseLabel = () => { $('phase').textContent = T(phase >= 2 ? 'b3.phase2' : 'b3.phase1') };
+phaseLabel();
+addEventListener('jutz:lang', () => { camLabel(); phaseLabel(); if (phase >= 2) { relabelGates(); panel() } showHeld() });
 window.SNACK3D = { A, tally, input, startPhase2, calc, GATE_X, GATES, get phase() { return phase }, get mv() { return mv }, get held() { return held }, get kg() { return kg },
   demo(t) { for (const g in t) { tally[g] += t[g]; sorted += Math.round(t[g] / .6); for (let i = 0; i < Math.min(8, t[g] / .6); i++) growLine(g) } panel() } };

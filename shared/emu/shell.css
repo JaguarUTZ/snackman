@@ -16,3 +16,9 @@ body{display:flex;flex-direction:column;font:400 9px/1 'Press Start 2P',ui-monos
 #emuboot.off{opacity:0;pointer-events:none}
 body.fs #emubar{display:none}
 @media (max-width:520px){#emubar .t{display:none}#emubar{justify-content:flex-start}#emubar a,#emubar button{padding:7px 6px}#emubar #emustart{margin-left:auto}}
+/* language pill (JaguarUTZ kit, top right): the bar is tall enough to hold it and keeps room on the right,
+   so it never covers START / pause / fullscreen or the game screen. Text >= 14px. */
+#emubar{font-size:14px;min-height:calc(60px + env(safe-area-inset-top,0px));padding-right:calc(88px + env(safe-area-inset-right,0px))}
+#emubar a,#emubar button{padding:8px 7px}
+.jutz-lang .jl-code{font-size:14px!important}
+@media (max-width:520px){#emubar{gap:5px;padding-left:6px}#emubar a,#emubar button{padding:8px 5px}}

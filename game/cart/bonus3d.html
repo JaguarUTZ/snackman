@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-i18n-doc="b3.doc">
 <head><script src="../../shared/hub/observe.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
@@ -36,6 +36,10 @@
 body.p2 #panel{display:block}
 @media (min-width:900px){#app{flex-direction:row}body.p2 #panel{height:auto;width:380px;border-top:0;border-left:3px solid #FFD400}}
 #stage canvas{image-rendering:auto}
+/* i18n display rules: DOM text >= 14px; the HUD uses a compact sans at 14px so longer Spanish/Italian labels fit at 390 wide */
+#hud{flex-wrap:wrap}#hud .box{font:700 14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:100%}
+.ill,#hud .small,.small{font-size:14px!important}#held{font-size:14px}#toast{font-size:16px}
+.btn.s{font-size:14px}#held{width:max-content;max-width:92%;font:700 14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}#held .code{font-family:"Press Start 2P",ui-monospace,monospace}#panel,#panel h2{font-size:14px}#over p{font-size:15px}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
@@ -43,22 +47,22 @@ body.p2 #panel{display:block}
 <div id="app">
  <div id="stage">
   <div id="hud" class="px">
-   <div class="box"><div id="phase">PHASE 1 · THE BID</div><div><b id="kg">0.0</b> KG EATEN <span class="ill">ILLUSTRATION</span></div><div id="bar"><i></i></div></div>
-   <div class="box" style="text-align:right"><div>₿ <b id="btc">0</b></div><div class="small px" style="font-size:8px">SWIPE / ARROWS</div></div>
+   <div class="box"><div id="phase">PHASE 1 · THE BID</div><div><b id="kg">0.0</b> <span data-i18n="b3.kgEaten">KG EATEN</span> <span class="ill" data-i18n="b3.ill">ILLUSTRATION</span></div><div id="bar"><i></i></div></div>
+   <div class="box" style="text-align:right"><div>₿ <b id="btc">0</b></div><div class="small" data-i18n="b3.swipe">SWIPE / ARROWS</div></div>
   </div>
   <div id="held" class="px"></div>
   <div id="toast" class="px"></div>
-  <div id="tools"><button class="btn s" id="camBtn" type="button">CAM: TOP</button><button class="btn s" id="sndBtn" type="button">🔊</button><button class="btn s" id="skipBtn" type="button">SKIP ▸ SORT</button></div>
+  <div id="tools"><button class="btn s" id="camBtn" type="button">CAM: TOP</button><button class="btn s" id="sndBtn" type="button" aria-label="Sound" data-i18n-attr="aria-label:b3.soundAria">🔊</button><button class="btn s" id="skipBtn" type="button" data-i18n="b3.skip">SKIP ▸ SORT</button></div>
   <div id="over">
    <h1 class="px">SNACKMAN 3D</h1>
-   <p><b>Phase 1 · The bid:</b> roll along the Motagua and eat all the plastic. <b>Phase 2 · Sorting:</b> the plastic arrives by resin code. Carry each piece to its line and build your own processing plant.</p>
-   <p class="small">Swipe on the game (phone) or use arrow keys / WASD. Prototype. All numbers are ILLUSTRATION.</p>
-   <button class="btn" id="startBtn" type="button">▶ TAP TO PLAY</button>
+   <p data-i18n-html="b3.overP"><b>Phase 1 · The bid:</b> roll down the Motagua, eat the plastic.<br><b>Phase 2 · Sorting:</b> plastic arrives by resin code.<br>Carry each piece to its line. Build your own plant.</p>
+   <p class="small" data-i18n-html="b3.overSmall">Swipe on the game (phone) or use arrow keys / WASD.<br>Prototype. All numbers are ILLUSTRATION.</p>
+   <button class="btn" id="startBtn" type="button" data-i18n="b3.tap">▶ TAP TO PLAY</button>
   </div>
  </div>
- <aside id="panel" aria-label="Factory layout calculator">
-  <h2 class="px">FACTORY LAYOUT</h2>
-  <div class="small">Built live from what you sort. <b style="color:#FC9838">ILLUSTRATION</b>: example scaling only; real stream data comes later.</div>
+ <aside id="panel" aria-label="Factory layout calculator" data-i18n-attr="aria-label:b3.panelAria">
+  <h2 class="px" data-i18n="b3.panelH">FACTORY LAYOUT</h2>
+  <div class="small" data-i18n-html="b3.panelIntro">Built live from what you sort.<br><b style="color:#FC9838">ILLUSTRATION</b>: example scaling only. Real data comes later.</div>
   <table id="tally"></table>
   <div id="scale" class="small"></div>
   <div id="diag"></div>
@@ -66,8 +70,9 @@ body.p2 #panel{display:block}
  </aside>
 </div>
 <script src="../../shared/emu/cart.js"></script>
+<script src="../shared/vendor/jaguarutz-kit.js"></script><script src="../shared/i18n/strings.js"></script>
 <script>window.EMU={title:'SNACKMAN · BONUS 3D',pause(){window.__emuPaused=true},resume(){window.__emuPaused=false},
- start(){const o=document.getElementById('over');if(o&&o.style.display!=='none')document.getElementById('startBtn').click()}};EMUCART.title(EMU.title);</script>
+ start(){const o=document.getElementById('over');if(o&&o.style.display!=='none')document.getElementById('startBtn').click()}};SNK.boot();SNK.onChange(()=>{EMU.title=SNK.t('b3.emu');EMUCART.title(EMU.title)});</script>
 <script type="module" src="bonus3d.js"></script>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body>
 </html>

@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><script src="../../shared/hub/level-gate.js"></script><script src="../../shared/hub/observe.js"></script><meta charset="utf-8">
+<!doctype html><html lang="en" data-i18n-doc="lv.doc"><head><script src="../../shared/hub/level-gate.js"></script><script src="../../shared/hub/observe.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Snackman · Levels</title>
@@ -66,16 +66,28 @@ body{font-family:"Press Start 2P",ui-monospace,monospace;-webkit-tap-highlight-c
 .gmc-b{grid-template-columns:1fr}.gmc-b button,.gmc-b a{min-height:52px}
 #gmcard.intro .gmc-b{grid-template-columns:1fr 1fr}#gmcard.intro .gmc-b .alt{background:#6fe7ff;box-shadow:4px 4px 0 #1a6a80}
 #gm{background:#000}#gmx2,#gmsnd{display:none}#snd{display:none}
+/* ---- i18n display rules: every DOM text >= 14px (Spanish/Italian run longer, so the HUD wraps to two rows) ---- */
+#gmhud{flex-wrap:wrap;row-gap:4px;font-size:14px}#gmlv{flex:1 0 100%;font-size:14px}#gmsc{flex:1;font-size:14px}#gmli{font-size:14px}
+#gmhud button{font-size:14px;padding:8px 8px;min-height:40px}
+#gmx{font-size:14px;min-height:26px}#gmx .ex,.gmc-x .ex,.dp-v .ex{font-size:14px;padding:1px 4px}
+.gmc-k{font-size:14px;line-height:1.5}.gmc-h{font-size:clamp(16px,5.4vw,26px)}#gmcard.intro .gmc-h,#gmcard.take .gmc-h{font-size:clamp(15px,4.8vw,22px)}
+.gmc-t{font-size:14px;line-height:1.7}.gmc-x{font-size:14px;line-height:1.7}.gmc-x small{font-size:14px}.gmc-c{font-size:14px;line-height:1.5}
+.gmc-b a,.gmc-b button{font-size:14px;line-height:1.35}.gmc-b .go{font-size:clamp(14px,3.8vw,15px)}
+#gmcap{font-size:clamp(14px,3.6vw,15px)}#gmkeys{font-size:14px;line-height:1.5;text-align:center;padding:8px 10px 12px}
+.dp-tk{font-size:14px;max-width:240px}.dp-tk .now{font-size:16px}.dp-tk em{font-size:14px;line-height:1.45;flex-basis:100%}.dp-bin b{font-size:14px}
+.dp-v{font-size:14px;line-height:1.6}.dp-kg{font-size:14px}.dp-r{font-size:14px}.dp-f{font-size:14px}
+#gmcard.intro .gmc-b{grid-template-columns:1fr}
+#gmcard{z-index:7}
 </style>
 <script src="../../shared/emu/cart.js"></script>
 </head><body>
 <button id="snd" type="button" aria-pressed="false">♪ OFF</button>
-<div id="gm" role="dialog" aria-modal="true" aria-label="Snackman: the levels" hidden>
- <div id="gmhud"><span id="gmlv">SNACKMAN</span><span id="gmsc">0 SATS</span><span id="gmli" aria-label="Time left">⏱ 30</span><button type="button" id="gmw" title="Autoplay">▶ WATCH</button><button type="button" id="gmsnd" aria-pressed="false" title="Sound">♪ OFF</button><button type="button" id="gmpz" title="Pause">❚❚</button><button type="button" id="gmx2" title="Back to the story">✕</button></div>
+<div id="gm" role="dialog" aria-modal="true" aria-label="Snackman: the levels" data-i18n-attr="aria-label:lv.aria" hidden>
+ <div id="gmhud"><span id="gmlv">SNACKMAN</span><span id="gmsc">0 SATS</span><span id="gmli" aria-label="Time left" data-i18n-attr="aria-label:lv.timeLeft">⏱ 30</span><button type="button" id="gmw" title="Autoplay" data-i18n-attr="title:lv.autoTip">▶ WATCH</button><button type="button" id="gmsnd" aria-pressed="false" title="Sound" data-i18n-attr="title:lv.sound">♪ OFF</button><button type="button" id="gmpz" title="Pause" data-i18n-attr="title:lv.pauseTip,aria-label:lv.pauseTip">❚❚</button><button type="button" id="gmx2" title="Back to the story" data-i18n-attr="title:lv.backTip,aria-label:lv.backTip">✕</button></div>
  <div id="gmx"></div>
- <div id="gmwrap"><canvas id="gmc" width="330" height="270" aria-label="Snackman maze"></canvas><div id="gmcap" hidden aria-live="polite"></div></div>
- <div id="gmpad" aria-label="Direction pad"><button type="button" class="u" data-d="U" aria-label="Up">▲</button><button type="button" class="l" data-d="L" aria-label="Left">◀</button><button type="button" class="r" data-d="R" aria-label="Right">▶</button><button type="button" class="d" data-d="D" aria-label="Down">▼</button></div>
- <p id="gmkeys">ARROWS / WASD / SWIPE · ▶ WATCH = AUTOPLAY</p>
+ <div id="gmwrap"><canvas id="gmc" width="330" height="270" aria-label="Snackman maze" data-i18n-attr="aria-label:lv.maze"></canvas><div id="gmcap" hidden aria-live="polite"></div></div>
+ <div id="gmpad" aria-label="Direction pad" data-i18n-attr="aria-label:lv.pad"><button type="button" class="u" data-d="U" aria-label="Up" data-i18n-attr="aria-label:lv.up">▲</button><button type="button" class="l" data-d="L" aria-label="Left" data-i18n-attr="aria-label:lv.left">◀</button><button type="button" class="r" data-d="R" aria-label="Right" data-i18n-attr="aria-label:lv.right">▶</button><button type="button" class="d" data-d="D" aria-label="Down" data-i18n-attr="aria-label:lv.down">▼</button></div>
+ <p id="gmkeys" data-i18n="lv.keys">ARROWS / WASD / SWIPE · ▶ WATCH = AUTOPLAY</p>
  <div id="gmcard" hidden><div class="gmc-box"></div></div>
 </div>
 <script>
@@ -89,7 +101,7 @@ document.getElementById('snd').onclick=()=>{snd=!snd;if(snd){ensureAC();AC.resum
 const unlock=()=>{if(!snd)document.getElementById('snd').click();removeEventListener('pointerdown',unlock,true);removeEventListener('keydown',unlock,true)};
 addEventListener('pointerdown',unlock,true);addEventListener('keydown',unlock,true);
 </script>
-<script src="levels.js"></script><script src="../../shared/hub/save.js"></script>
+<script src="../shared/vendor/jaguarutz-kit.js"></script><script src="../shared/i18n/strings.js"></script><script src="levels.js"></script><script src="../../shared/hub/save.js"></script>
 <script>
 const q=new URLSearchParams(location.search),lv=q.get('level');
 document.getElementById('gm').hidden=false;
@@ -105,5 +117,5 @@ HWSave.load('snackman').then(S=>{S=S||{};
 const key=k=>dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));
 window.EMU={title:'SNACKMAN · LEVELS',ownPause:true,pause(){key('p')},resume(){key('p')},
  start(){const b=document.querySelector('#gmcard:not([hidden]) .go')||document.querySelector('#gmcard:not([hidden]) button');if(b)b.click();else key('p')}};
-EMUCART.title(EMU.title);
+SNK.boot();SNK.onChange(()=>{EMU.title=SNK.t('lv.emu');EMUCART.title(EMU.title)});
 </script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body></html>

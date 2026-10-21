@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><script src="../../shared/hub/observe.js"></script><meta charset="utf-8">
+<!doctype html><html lang="en" data-i18n-doc="pro.doc"><head><script src="../../shared/hub/observe.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Snackman · Prologue: Put a bid on plastic</title>
@@ -9,17 +9,17 @@ main{height:100dvh;display:flex;flex-direction:column;align-items:center;justify
 .gbox{position:relative;width:min(98vw,calc((100dvh - 86px)*256/224));aspect-ratio:256/224}
 canvas{display:block;width:100%;height:100%;image-rendering:pixelated;background:#000;box-shadow:0 0 0 2px #1a1a1a}
 .tap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);border:0;cursor:pointer}
-.tap span{background:#F8B800;color:#000;font:400 clamp(12px,3vmin,18px)/1.3 "Press Start 2P",monospace;padding:16px 20px;box-shadow:0 6px 0 #8a6500}.tap small{display:block;font-size:8px;letter-spacing:.14em;margin-top:8px}.tap[hidden]{display:none}
+.tap span{background:#F8B800;color:#000;font:400 clamp(14px,3vmin,18px)/1.3 "Press Start 2P",monospace;padding:16px 20px;box-shadow:0 6px 0 #8a6500}.tap small{display:block;font-size:14px;letter-spacing:.06em;margin-top:8px}.tap[hidden]{display:none}
 .ctl{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
-.ctl button{font:inherit;font-size:clamp(9px,2.2vmin,12px);border:0;padding:12px 14px;cursor:pointer;box-shadow:3px 3px 0 #333}
+.ctl button{font:inherit;font-size:14px;line-height:1.3;border:0;padding:12px 14px;cursor:pointer;box-shadow:3px 3px 0 #333}
 #bid{background:#58D854;color:#000}#next{background:#FFD400;color:#000;box-shadow:3px 3px 0 #8a6500}#next[hidden]{display:none}.b2{background:#1a1a1a;color:#ddd}
 </style>
 <script src="../../shared/emu/cart.js"></script>
 </head><body><main>
-<div class="gbox"><canvas id="cv" width="256" height="224" aria-label="Snackman: the interceptor game versus a bid on plastic"></canvas><button class="tap" id="tap" type="button"><span>▶ PLAY SNACKMAN<small>SOUND ON</small></span></button></div>
-<div class="ctl"><button id="bid" type="button">Ⓐ PUT A BID ON PLASTIC ▸</button><button class="b2" id="replay" type="button">↻ REPLAY</button><button id="next" type="button" hidden>LEVEL 1 ▶</button></div>
+<div class="gbox"><canvas id="cv" width="256" height="224" aria-label="Snackman: the interceptor game versus a bid on plastic" data-i18n-attr="aria-label:pro.canvas"></canvas><button class="tap" id="tap" type="button"><span><b data-i18n="pro.play" style="font-weight:400">▶ PLAY SNACKMAN</b><small data-i18n="pro.sound">SOUND ON</small></span></button></div>
+<div class="ctl"><button id="bid" type="button" data-i18n="pro.bid">Ⓐ PUT A BID ON PLASTIC ▸</button><button class="b2" id="replay" type="button" data-i18n="pro.replay">↻ REPLAY</button><button id="next" type="button" hidden data-i18n="pro.next">LEVEL 1 ▶</button></div>
 </main>
-<script src="bid-game.js"></script>
+<script src="../shared/vendor/jaguarutz-kit.js"></script><script src="../shared/i18n/strings.js"></script><script src="bid-game.js"></script>
 <script>
 /* flow copied from the frozen /plastic/play page (play.html); donation panel, share and analytics removed */
 const $=id=>document.getElementById(id);const g=BidGame.create($('cv'));let started=false,dropped=false,autoT=null;
@@ -33,5 +33,5 @@ setInterval(()=>{const s=g._state&&g._state();if(s&&s.outcome==='win'&&s.endAt>=
 addEventListener('keydown',e=>{if(EMUCART.paused)return;if(e.key==='Enter'||e.key===' '||e.key==='z'||e.key==='Z'){if(document.activeElement.tagName==='BUTTON'&&document.activeElement.id!=='tap')return;e.preventDefault();window.EMU.start()}});
 window.EMU={title:'SNACKMAN · PROLOGUE',start(){if(!started)begin();else if(!$('next').hidden)next();else if(!dropped)drop()},
  pause(){g.pause()},resume(){g.resume()}};
-EMUCART.title(EMU.title);
+SNK.boot();SNK.onChange(()=>{EMU.title=SNK.t('pro.emu');EMUCART.title(EMU.title)});
 </script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body></html>

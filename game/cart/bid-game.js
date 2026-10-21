@@ -15,6 +15,8 @@ window.PPSLayer=window.PPSLayer||(function(){const st=[];let skip=0;
 })();
 (function(){
 const W=256,H=224,DT=1/60;
+/* i18n: canvas text goes through SNK.tx(english) (game/shared/i18n/strings.js, c.* keys); English is the fallback */
+const TX=s=>{try{return window.SNK?SNK.tx(s):s}catch(e){return s}};
 /* ===== EDIT AMOUNTS / LABELS HERE ===== */
 /* GOAL_USD: the ONE place to change the goal (build-out spend). Deck text (build.py), bid page, campaign build all read it from here. */
 const GOAL_USD=5000000;
@@ -102,7 +104,7 @@ const SNACK=(function(){
   ctx.fillStyle='#000';ctx.fillRect(Math.round(x+face*r*.15),Math.round(y-r*.2),1,1)}
  function coin(ctx,x,y,sz){if(sz>=7){const k=sz/9,prev=ctx.imageSmoothingEnabled;ctx.imageSmoothingEnabled=false;ctx.drawImage(spr('coin'),Math.round(x-4.5*k),Math.round(y-4.5*k),Math.round(9*k),Math.round(9*k));ctx.imageSmoothingEnabled=prev;return}
   ctx.fillStyle='#000';ctx.fillRect(Math.round(x-2),Math.round(y-2),5,5);ctx.fillStyle='#FFD400';ctx.fillRect(Math.round(x-1.5),Math.round(y-1.5),4,4);ctx.fillStyle='#000';ctx.fillRect(Math.round(x),Math.round(y-1),1,3)}
- function line(){const c=CFG.snackman||{};return ["I'M EATING","ALL THE PLASTIC!"]}
+ function line(){const c=CFG.snackman||{};return [TX("I'M EATING"),TX("ALL THE PLASTIC!")]}
  /* comic thought bubble near (hx,hy) = top of his head; clamps inside W x H (and below minY) */
  function thought(ctx,hx,hy,W,H,fnt,sz,a,minY){const L=line();ctx.save();ctx.globalAlpha=a==null?1:a;ctx.font=fnt(sz);const lw=Math.max(...L.map(s=>ctx.measureText(s).width)),lh=sz+3,bw=Math.ceil(lw+sz*2),bh=Math.ceil(L.length*lh+sz*1.4);
   let bx=Math.round(hx+sz*1.5),by=Math.round(hy-bh-sz*3);if(bx+bw>W-2)bx=Math.round(hx-bw-sz*1.5);bx=Math.max(2,Math.min(W-bw-2,bx));by=Math.max(minY||2,by);
@@ -120,7 +122,7 @@ const SNACK=(function(){
   ctx.save();ctx.globalAlpha=Math.min(1,(life-age)/.15);ctx.translate(x+sh,y);ctx.rotate(b.rot);ctx.scale(sc,sc);
   const [cf,ct]=COLS[b.ci];ctx.beginPath();for(let i=0;i<N*2;i++){const a=i/(N*2)*6.283,rr=(i%2?R0*.6:R0)*(0.85+r()*.3);ctx[i?'lineTo':'moveTo'](Math.cos(a)*rr*1.25,Math.sin(a)*rr*.85)}ctx.closePath();
   ctx.fillStyle=cf;ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#000';ctx.stroke();
-  const fs=Math.max(5,Math.round(R0*(b.w.length>5?.34:.45)));ctx.font=fnt(fs);ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=2;ctx.strokeStyle='#000';ctx.strokeText(b.w,0,b.coin?-fs*.35:1);ctx.fillStyle=ct;ctx.fillText(b.w,0,b.coin?-fs*.35:1);
+  const bw=TX(b.w),fs=Math.max(5,Math.round(R0*(bw.length>5?.34:.45)));ctx.font=fnt(fs);ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=2;ctx.strokeStyle='#000';ctx.strokeText(bw,0,b.coin?-fs*.35:1);ctx.fillStyle=ct;ctx.fillText(bw,0,b.coin?-fs*.35:1);
   if(b.coin)coin(ctx,0,fs*.9,Math.max(5,fs*1.2));ctx.restore();return true}
  /* plastic-concrete house blueprint (units): floor -> walls (door + windows) -> roof. colours: gray/red/green */
  const BP=[];for(let x=0;x<7;x++)BP.push([x,6,'#9A9A9A']);
@@ -137,7 +139,7 @@ function Furnace(w,h){
  function slot(){for(const hh of HS)if(hh.n<SNACK.BP.length)return {h:hh,bp:SNACK.BP[hh.n++]};return null}let t=0,items=[],coins=[],blocks=[],sparks=[],bolts=[],steam=[],pile=0,spawnT=0,kwh=0,nblk=0,sats=0,cityGlow=0,nextF=0;
  const fur=FX.map(x=>({x,heat:.3,chomp:0,eat:0}));
  const P=(x,y,W,H,col)=>{c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),W,H)};
- const T=(s,x,y,col,sz,al)=>{c.font=sz+'px "Press Start 2P", monospace';c.fillStyle=col;c.textAlign=al||'left';c.textBaseline='top';c.fillText(s,x,y)};
+ const T=(s,x,y,col,sz,al)=>{s=TX(s);c.font=sz+'px "Press Start 2P", monospace';c.fillStyle=col;c.textAlign=al||'left';c.textBaseline='top';c.fillText(s,x,y)};
  function spawn(){const r=R(),type=r<.4?'bottle':r<.7?'bag':'bit';items.push({x:-8,y:BELT,type,c:PCOL[(R()*5)|0],st:'belt',tf:nextF,vy:0,tag:0});nextF=(nextF+1+((R()*2)|0))%n}
  function step(dt){t+=dt;spawnT-=dt;
   sm.x+=16*dt*sm.dir;if(sm.x>w-16){sm.x=w-16;sm.dir=-1}if(sm.x<SX1+16){sm.x=SX1+16;sm.dir=1}if(t-sm.poopT>1.1){sm.poopT=t;sm.n++;coins.push({x:sm.x-sm.dir*9,y:BELT-8,vx:-sm.dir*(12+R()*14),vy:-(45+R()*20),r:0});if(sm.n%2===0)fb.push(SNACK.mkBurst(sm.x-sm.dir*16,BELT-22,t,'PLOP!',null,w>=300?12:11))}
@@ -171,7 +173,7 @@ function Furnace(w,h){
   P(x+3,y+FH,6,3,'#303030');P(x+fw-9,y+FH,6,3,'#303030');P(x+fw-10,y+FH-10,8,8,'#303030');P(x+fw-9,y+FH-9,6,6,hot>.5?'#F87800':NES.red)}
  function draw(){P(0,0,w,h,'#0b0b0b');
   T('WE WIN · HAPPY FURNACES',w/2,4,NES.grey,5,'center');
-  const words=['PLASTIC','POWER','SATS'],sz=w>=300?10:8;c.font=sz+'px "Press Start 2P", monospace';const aw=sz*1.6,gw=words.reduce((a,s)=>a+c.measureText(s).width,0)+aw*2+sz*2;let xx=(w-gw)/2;
+  const words=['PLASTIC','POWER','SATS'].map(TX),sz=w>=300?10:8;c.font=sz+'px "Press Start 2P", monospace';const aw=sz*1.6,gw=words.reduce((a,s)=>a+c.measureText(s).width,0)+aw*2+sz*2;let xx=(w-gw)/2;
   words.forEach((s,i)=>{T(s,xx,14,Y,sz);xx+=c.measureText(s).width;if(i<2){const ay=14+sz/2;P(xx+sz*.5,ay-1,aw-4,2,Y);for(let q=0;q<4;q++)P(xx+sz*.5+aw-6-q,ay-1-q,1,2+q*2,Y);xx+=aw+sz}});
   // belt
   P(0,BELT+2,w,4,'#3a3a3a');for(let q=((t*34)%8)-8;q<w;q+=8)P(q,BELT+3,4,1,'#6a6a6a');P(0,BELT+6,w,1,'#1a1a1a');for(let q=4;q<w;q+=16){P(q,BELT+7,3,3,'#555')}
@@ -312,7 +314,7 @@ function create(cv){
   s.pipe=s.pipe.filter(q=>!q.done);
   s.coins.forEach(k=>{k.x+=k.vx*DT;k.y+=k.vy*DT;k.vy+=14*DT;k.l-=DT});s.coins=s.coins.filter(k=>k.l>0&&k.x<W);
  }
- function txt(s,x,y,c,sz,al){ctx.font=F(sz||8);ctx.fillStyle=c;ctx.textAlign=al||'left';ctx.textBaseline='top';ctx.fillText(s,x,y)}
+ function txt(s,x,y,c,sz,al){s=TX(s);sz=sz||8;ctx.font=F(sz);const tw=ctx.measureText(s).width,room=al==='center'?2*Math.min(x,W-x)-4:al==='right'?x-2:W-x-2;if(tw>room&&room>20){sz=Math.max(3,Math.floor(sz*room/tw));ctx.font=F(sz)}ctx.fillStyle=c;ctx.textAlign=al||'left';ctx.textBaseline='top';ctx.fillText(s,x,y)}
  function box(x,y,w,h,c){ctx.fillStyle='#000';ctx.fillRect(x,y,w,h);ctx.strokeStyle=c;ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2)}
  function meter(y){const c=CFG.camp||{kg:0,sats:0};txt('SATS IN: '+fmt(c.sats)+' · ABOVE '+fM(GOAL)+': HODLED',128,y+1,NES.yellow,6,'center');txt('PLASTIC BOUGHT: '+fmt(c.kg)+' KG (AFTER THE SNACKMAN FACTORY IS BUILT)',128,y+12,NES.grey,4,'center')}
  function factory(x,y,sc,col){x|=0;y|=0;ctx.fillStyle=NES.lgrey;ctx.fillRect(x-3*sc,y-2*sc,6*sc,4*sc);ctx.fillStyle=col||NES.yellow;ctx.fillRect(x-3*sc,y-3*sc,6*sc,sc);ctx.fillStyle=NES.grey;ctx.fillRect(x+sc,y-5*sc,sc,2*sc)}
@@ -354,7 +356,7 @@ function create(cv){
    FISH.forEach(([fx,fy],k)=>{const x=(fx+t*12*(k%2?1:-1)+W*4)%W,y=fy+Math.sin(t*2+k)*3;if(BGC.mask[(y|0)*W+(x|0)])return;const dir=k%2?1:-1;ctx.fillStyle=k%3?NES.orange:NES.pink;ctx.fillRect(x-2|0,y-1|0,4,3);ctx.fillRect(x-2-2*dir|0,y|0,2,1);ctx.fillRect(x-2-2*dir|0,y-2|0,1,1);ctx.fillRect(x-2-2*dir|0,y+2|0,1,1);ctx.fillStyle='#000';ctx.fillRect(x+dir|0,y-1|0,1,1)});ctx.globalAlpha=1}
   // HUD
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,24);const tA=s.col*0.05,tB=s.digested*0.05;
-  if(!bid||bt<1.2||(s.outcome==='fail'&&s.endAt>=0)){const days=DAYS0+(handed(s)&&!s.tkCut?Math.min(t,TK):t),eur=CFG.toc.spent+CFG.toc.perYear*days/365,dd=new Date(Date.parse(CFG.toc.asOf)+days*864e5);txt('EUR-'+fmt(eur),4,3,NES.red,8);txt('T '+tA.toFixed(1),252,3,NES.white,8,'right');txt('KWH-'+fmt(tA*50000),4,14,NES.red,6);txt(MOS[dd.getUTCMonth()]+' '+dd.getUTCDate()+' '+dd.getUTCFullYear()+' EST.RATE',252,15,NES.grey,5,'right')}
+  if(!bid||bt<1.2||(s.outcome==='fail'&&s.endAt>=0)){const days=DAYS0+(handed(s)&&!s.tkCut?Math.min(t,TK):t),eur=CFG.toc.spent+CFG.toc.perYear*days/365,dd=new Date(Date.parse(CFG.toc.asOf)+days*864e5);txt('EUR-'+fmt(eur),4,3,NES.red,8);txt('T '+tA.toFixed(1),252,3,NES.white,8,'right');txt('KWH-'+fmt(tA*50000),4,14,NES.red,6);txt(TX(MOS[dd.getUTCMonth()])+' '+dd.getUTCDate()+' '+dd.getUTCFullYear()+' '+TX('EST.RATE'),252,15,NES.grey,5,'right')}
   else{txt('T '+tB.toFixed(2),4,3,NES.white,8);txt('$+'+fmt(tB*610),252,3,NES.green,8,'right');txt('KWH+'+fmt(tB*2700),4,14,NES.green,8);txt('SATS+'+fmt(tB*300000),252,14,NES.yellow,8,'right')}ctx.fillStyle='#000';ctx.fillRect(96,24,64,9);txt('ILLUSTRATION',128,26,NES.yel2,4,'center');
   ctx.fillStyle='#000';ctx.fillRect(0,184,W,40);
   if(!bid||bt<1.2){const tk=tkK(s);if(!bid&&tk>=0&&tk<TKL){txt('THE HANDOVER',128,187,NES.green,8,'center')}else if(t<TK&&!LV.l1){txt('THE INTERCEPTOR GAME',128,187,NES.white,8,'center')}
@@ -362,11 +364,11 @@ function create(cv){
    meter(197)}
   else{const BX=[40,98,156,214],LB=['SORT','PYRO','GEN','MINE'];ctx.fillStyle=NES.grey;ctx.fillRect(4,205,248,3);
    for(const q of s.pipe){ctx.fillStyle=q.st>=3?NES.cyan:q.st>=2?NES.orange:q.c;if(q.x>0)ctx.fillRect(q.x|0,204,3,5)}
-   BX.forEach((bx,k)=>{box(bx-2,196,36,22,k===3?NES.yellow:NES.green);txt(LB[k],bx+16,204,NES.white,6,'center')});
+   BX.forEach((bx,k)=>{box(bx-2,196,36,22,k===3?NES.yellow:NES.green);txt(LB[k],bx+16,204,NES.white,TX(LB[k]).length>4?5:6,'center')});
    txt(fly?'FLYWHEEL: BABY FACTORIES EVERYWHERE':'PLASTIC DIGESTIVE SYSTEM',128,187,NES.green,5,'center')}
   s.coins.forEach(k=>{ctx.fillStyle=NES.yellow;ctx.fillRect(k.x-3|0,k.y-3|0,7,7);txt('B',k.x|0,(k.y|0)-2,'#000',5,'center')});
   if(t<4.6&&!bid){box(10,62,236,90,NES.white);txt('THE INTERCEPTOR GAME',128,70,NES.white,8,'center');txt('THE OCEAN CLEANUP, PUBLIC RECORD',128,86,NES.grey,5,'center');txt('2018-2025: EUR 244M SPENT',128,100,NES.red,7,'center');txt('47,800 T CAUGHT (ALL TIME)',128,114,NES.white,7,'center');txt('= ~EUR 5,100 PER TONNE CAUGHT',128,130,NES.yel2,5,'center');txt('SOURCE: TOC ANNUAL REPORTS',128,140,NES.grey,4,'center')}
-  if(!bid)MS.forEach(([at,label,a,b2])=>{const k=t-at;if(k<0||k>1.25)return;let x=a,y=b2;if(a<0){const q=P(a,b2);x=q[0];y=q[1]-14}ctx.globalAlpha=Math.min(1,(1.25-k)*4);ctx.font=F(5);const w=ctx.measureText(label).width+8;const bx=Math.max(2,Math.min(W-w-2,x-w/2));box(bx,y-2,w,12,NES.yellow);txt(label,bx+4,y+1.5,NES.yellow,5);ctx.globalAlpha=1});
+  if(!bid)MS.forEach(([at,label0,a,b2])=>{const k=t-at;if(k<0||k>1.25)return;const label=TX(label0);let x=a,y=b2;if(a<0){const q=P(a,b2);x=q[0];y=q[1]-14}ctx.globalAlpha=Math.min(1,(1.25-k)*4);ctx.font=F(5);const w=ctx.measureText(label).width+8;const bx=Math.max(2,Math.min(W-w-2,x-w/2));box(bx,y-2,w,12,NES.yellow);txt(label,bx+4,y+1.5,NES.yellow,5);ctx.globalAlpha=1});
   if(s.banner&&t>=s.banner.t&&t-s.banner.t<3.2&&!bid){const k=s.banner.k;box(8,70,240,62,k===1?NES.yellow:NES.orange);
    if(k===1){txt('PYROLYSIS PLANT UP',128,78,NES.yellow,8,'center');txt('FIRST '+fM(GOAL)+' FUNDS THE BUILD-OUT',128,96,NES.white,5,'center');txt('ABOVE '+fM(GOAL)+': THE PLASTIC STASH',128,108,NES.green,5,'center')}
    else{txt('PLANT FUNDED',128,78,NES.orange,8,'center');txt('FIRST '+fM(GOAL)+': THE BUILD-OUT',128,96,NES.white,5,'center');txt('ABOVE '+fM(GOAL)+': HODLED IN BITCOIN',128,108,NES.green,5,'center')}}
@@ -403,7 +405,7 @@ function create(cv){
  function umbrella(x,y){px(x,y,2,50,NES.lgrey);for(let r=0;r<6;r++){const hw=8+r*4,yy=y-12+r*2;for(let xx=-hw;xx<hw;xx+=2)px(x+1+xx,yy,2,2,(Math.floor((xx+hw)/(hw/3)))%2?NES.white:NES.red)}px(x,y-15,2,3,NES.lgrey)}
  function bubble(x,y,w,h,tx,tag,tagc,lines,k0,k){box(x,y,w,h,NES.white);ctx.fillStyle=NES.white;ctx.fillRect(x+2,y+2,w-4,h-4);
   for(let i=0;i<5;i++)px(tx-i+2,y+h+i-1,i*2+1-1,1,NES.white);px(tx-4,y+h-1,8,1,NES.white);
-  txt(tag,x+6,y+5,tagc,5);let n=Math.max(0,Math.floor((k-k0)*24));lines.forEach((ln,i)=>{const sh=ln.slice(0,Math.max(0,n));n-=ln.length;txt(sh,x+6,y+15+i*11,'#000',6)})}
+  txt(tag,x+6,y+5,tagc,5);lines=lines.map(TX);let n=Math.max(0,Math.floor((k-k0)*24));lines.forEach((ln,i)=>{const sh=ln.slice(0,Math.max(0,n));n-=ln.length;txt(sh,x+6,y+15+i*11,'#000',6)})}
  function handover(k){const X0=8,Y0=28,Wd=240,Hd=154,a=Math.min(1,k/0.35)*Math.min(1,(TKL-k)/0.5);if(a<=0)return;
   ctx.save();ctx.globalAlpha=a;box(X0,Y0,Wd,Hd,NES.yellow);ctx.beginPath();ctx.rect(X0+2,Y0+2,Wd-4,Hd-4);ctx.clip();
   const HZ=Y0+88,SH=X0+130;
@@ -511,10 +513,10 @@ function create(cv){
 const FurnaceOverlay=(function(){let el=null,raf=0,F=null,last=0;
  function tick(ts){if(!el)return;const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;F.step(dt);F.draw();const x=el.firstChild.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(F.cv,0,0);raf=requestAnimationFrame(tick)}
  function key(e){if(!el)return;e.preventDefault();e.stopPropagation();close()}
- function open(){if(el)return;window.PPSLayer.push('furnace',()=>close(true));F=Furnace(320,180);el=document.createElement('div');el.className='pps-furnace';el.setAttribute('role','dialog');el.setAttribute('aria-label','We win: happy furnace celebration. Press any key to close.');
+ function open(){if(el)return;window.PPSLayer.push('furnace',()=>close(true));F=Furnace(320,180);el=document.createElement('div');el.className='pps-furnace';el.setAttribute('role','dialog');el.setAttribute('aria-label',window.SNK?SNK.t('pro.furnAria'):'We win: happy furnace celebration. Press any key to close.');
   el.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#0b0b0b;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:ppsFurIn .5s ease-out';
   const c=document.createElement('canvas');c.width=320;c.height=180;c.style.cssText='width:min(100vw,177.78vh);height:auto;max-height:100vh;aspect-ratio:16/9;image-rendering:pixelated;display:block';el.appendChild(c);
-  const hint=document.createElement('div');hint.textContent='TAP OR PRESS ANY KEY TO CLOSE';hint.style.cssText='position:absolute;bottom:10px;left:0;right:0;text-align:center;font:10px "Press Start 2P",monospace;color:#7C7C7C;letter-spacing:1px';el.appendChild(hint);
+  const hint=document.createElement('div');hint.textContent=window.SNK?SNK.t('pro.furnHint'):'TAP OR PRESS ANY KEY TO CLOSE';hint.style.cssText='position:absolute;bottom:10px;left:0;right:0;text-align:center;font:14px/1.5 "Press Start 2P",monospace;padding:0 10px;color:#7C7C7C;letter-spacing:1px';el.appendChild(hint);
   if(!document.getElementById('ppsFurCss')){const st=document.createElement('style');st.id='ppsFurCss';st.textContent='@keyframes ppsFurIn{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}';document.head.appendChild(st)}
   el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();close()});document.addEventListener('keydown',key,true);document.body.appendChild(el);last=0;raf=requestAnimationFrame(tick)}
  function close(fromPop){if(!el)return;if(fromPop!==true)window.PPSLayer.done('furnace');cancelAnimationFrame(raf);document.removeEventListener('keydown',key,true);el.remove();el=null;F=null}

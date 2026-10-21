@@ -18,6 +18,10 @@ Not this repo: snackman.forkashi.com (EcoAlquimia business page, forkashi-progre
 | 3D bonus | `game/cart/bonus3d.html`, `bonus3d.js`, `three.module.min.js` | Open /game/?cart=bonus3d. Scene renders and moves on touch. |
 | Local save (no account) | `shared/hub/save.js`, `level-gate.js` (always open) | Play LV1, reload. Title offers CONTINUE. Key `hw_save_snackman`. |
 | No telemetry / no API | `shared/hub/observe.js`, `visit.js`, `clicks.js` (no-ops) | Console clean; no /api calls in the network tab. |
+| Language button EN / ES / IT (kit pill, choice remembered) | `game/shared/vendor/jaguarutz-kit.js` (jaguarutz-kit 1.1.0, vendored), `game/shared/i18n/strings.js` (all text, `// JOKE: native check` marks), `game/index.html`, `shared/emu/shell.css`, `cart.js`, every `game/cart/*.html`, `bid-game.js`, `levels.js`, `bonus3d.js` | Open /game/. Tap the pill top right, pick ES. Title reads CAGA BITCOIN; IT reads MANGIA PLASTICA. Reload: the pick stays. Pill clears START, ❚❚ and ⛶. |
+| Works offline after one visit | `game/sw.js` (registered in `game/index.html`) | Load /game/ once, go to airplane mode, reload. The game still plays. |
+
+Before every deploy: `node scripts/guard.js` (banned names in any language, no walls or popups).
 
 Reference only (not served by the game): `shared/hub-live/` (old gated hub), `variants/`, `sequels/snackman-2/`.
 Saved Oct 7–8 additions (sound button, recap, NO CACOPHONY): tag `snackman-now-1`.

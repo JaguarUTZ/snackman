@@ -2,9 +2,9 @@
    A cart sets window.EMU={start(){}, pause(){}, resume(){}, title:'...'} */
 (function(){
 let paused=false,ov=null;
-function overlay(on){if(on&&!ov){ov=document.createElement('div');ov.id='emupz';ov.innerHTML='<div>❚❚ PAUSE</div><small>PRESS START OR ❚❚ TO RESUME</small>';
+function overlay(on){if(on&&!ov){ov=document.createElement('div');ov.id='emupz';const T=(k,d)=>window.SNK?SNK.t(k):d;ov.innerHTML='<div></div><small></small>';ov.firstChild.textContent=T('pause.big','❚❚ PAUSE');ov.querySelector('small').textContent=T('pause.small','PRESS START OR ❚❚ TO RESUME');
   ov.style.cssText="position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:rgba(0,0,0,.72);color:#FFD400;font:400 20px/1.4 'Press Start 2P',monospace;text-align:center";
-  ov.querySelector('small').style.cssText='font-size:8px;color:#bbb';ov.onclick=()=>toggle(false);document.body.appendChild(ov)}
+  ov.querySelector('small').style.cssText='font-size:14px;line-height:1.6;color:#bbb;padding:0 12px';ov.onclick=()=>toggle(false);document.body.appendChild(ov)}
  if(!on&&ov){ov.remove();ov=null}}
 function toggle(v){const E=window.EMU||{};paused=v===undefined?!paused:v;if(!E.ownPause)overlay(paused);try{paused?E.pause&&E.pause():E.resume&&E.resume()}catch(e){console.warn(e)}}
 addEventListener('message',e=>{if(e.origin!==location.origin||!e.data||!e.data.emu)return;const E=window.EMU||{};

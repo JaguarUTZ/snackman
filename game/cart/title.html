@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><script src="../../shared/hub/observe.js"></script><meta charset="utf-8">
+<!doctype html><html lang="en" data-i18n-doc="title.doc"><head><script src="../../shared/hub/observe.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Snackman · Title</title>
@@ -9,29 +9,36 @@ main{height:100dvh;display:flex;flex-direction:column;align-items:center;justify
  background:radial-gradient(ellipse at 50% 35%,#0a1f5c 0,#000 65%)}
 .logo{font-size:clamp(26px,9vmin,64px);color:#FFD400;text-shadow:4px 4px 0 #b05000,8px 8px 0 #000;letter-spacing:2px}
 img{width:min(60vw,38vh);image-rendering:pixelated}
-.tag{font-size:clamp(8px,2.2vmin,13px);line-height:1.8;color:#58D854}
-.go{font:inherit;font-size:clamp(11px,2.8vmin,16px);background:#FFD400;color:#000;border:0;padding:14px 18px;cursor:pointer;box-shadow:4px 4px 0 #8a6500;animation:bl 1s steps(2) infinite}
+.tag{font-size:14px;line-height:1.7;color:#58D854;margin:0}
+.go{font:inherit;font-size:clamp(14px,2.8vmin,16px);background:#FFD400;color:#000;border:0;padding:14px 18px;cursor:pointer;box-shadow:4px 4px 0 #8a6500;animation:bl 1s steps(2) infinite}
 .go:focus{outline:3px solid #fff}@keyframes bl{50%{opacity:.35}}
-.sel{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:560px;font-size:8px;color:#888}
+.sel{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:560px;font-size:14px;line-height:1.4;color:#888}
 .sel a{color:#ddd;text-decoration:none;border:2px solid #333;padding:8px;background:#0b0b0b}
+.sel .h{flex-basis:100%}
+@media (max-height:760px){.logo{font-size:clamp(22px,7vmin,48px)}img{width:min(40vw,22vh)}}
 .sel a:hover,.sel a:focus{border-color:#FFD400;color:#FFD400}
 .lk{opacity:.45;border-style:dashed!important}
 </style>
 <script src="../../shared/emu/cart.js"></script>
 </head><body><main>
 <div class="logo">SNACKMAN</div>
-<img src="a/snackman.gif" alt="Snackman: a yellow chomper with a green hard hat">
-<p class="tag">SNACKMAN EATS PLASTIC.<br>POOPS BITCOIN.</p>
+<img src="a/snackman.gif" alt="Snackman: a yellow chomper with a green hard hat" data-i18n-attr="alt:title.alt">
+<p class="tag" data-i18n-html="title.tag">SNACKMAN EATS PLASTIC.<br>POOPS BITCOIN.</p>
 <button class="go" id="go" type="button" autofocus>▶ PRESS START</button>
-<nav class="sel" aria-label="Stage select">STAGE SELECT<a href="prologue.html">PROLOGUE · PUT A BID ON PLASTIC</a><a href="levels.html?level=0">LV1 👩 SORT + WASH</a><a href="levels.html?level=1">LV2 🎺 WAH WAH</a><a href="levels.html?level=2">LV3 🏪 PARTNER CHAIN</a><a class="lk" href="#" onclick="return false" title="Beat levels 1-3 to unlock">🔒 MASTER LEVEL</a><a href="bonus3d.html">BONUS · SNACKMAN 3D</a></nav>
-<p class="tag" style="color:#666;font-size:7px">© HOWARD WOODS INTERACTIVE · ECOALQUIMIA</p>
+<nav class="sel" aria-label="Stage select" data-i18n-attr="aria-label:title.selAria"><span class="h" data-i18n="title.sel">STAGE SELECT</span><a href="prologue.html" data-i18n="title.prologue">PROLOGUE · PUT A BID ON PLASTIC</a><a href="levels.html?level=0" data-i18n="title.lv1">LV1 👩 SORT + WASH</a><a href="levels.html?level=1" data-i18n="title.lv2">LV2 🎺 WAH WAH</a><a href="levels.html?level=2" data-i18n="title.lv3">LV3 🏪 PARTNER CHAIN</a><a class="lk" id="mst" href="#" onclick="return false" title="Beat levels 1-3 to unlock">🔒 MASTER LEVEL</a><a href="bonus3d.html" data-i18n="title.bonus">BONUS · SNACKMAN 3D</a></nav>
+<p class="tag" style="color:#666;font-size:14px" data-i18n="title.copy">© HOWARD WOODS INTERACTIVE · ECOALQUIMIA</p>
 </main>
-<script src="../../shared/hub/save.js"></script><script>
-let dest='prologue.html';const go=()=>location.href=dest;
-HWSave.load('snackman').then(s=>{if(!s)return;const b=document.getElementById('go'),m=document.querySelector('.lk');
- if(s.level>0||s.score>0){dest='levels.html?resume=1';b.textContent='▶ CONTINUE '+(s.level>=3?'MASTER LEVEL':'LV'+(s.level+1))}
- if(s.master){m.classList.remove('lk');m.onclick=null;m.href='levels.html?level=3';m.textContent='★ MASTER LEVEL'}
- if(s.best)document.querySelector('.tag').insertAdjacentHTML('afterend','<p class="tag" style="color:#FFD400">HIGH SCORE '+(+s.best).toLocaleString()+' SATS</p>')});document.getElementById('go').onclick=go;
+<script src="../../shared/hub/save.js"></script><script src="../shared/vendor/jaguarutz-kit.js"></script><script src="../shared/i18n/strings.js"></script><script>
+let dest='prologue.html',save=null;const go=()=>location.href=dest;
+/* everything the title shows is re-rendered from the string tables whenever the language changes */
+function render(){const T=SNK.t,b=document.getElementById('go'),m=document.getElementById('mst'),s=save;
+ b.textContent=T('title.start');m.textContent=T('title.lock');m.title=T('title.lockTip');
+ if(s&&(s.level>0||s.score>0)){dest='levels.html?resume=1';b.textContent=T('title.continue',{lv:s.level>=3?T('title.master'):T('title.lvShort',{n:s.level+1})})}
+ if(s&&s.master){m.classList.remove('lk');m.onclick=null;m.href='levels.html?level=3';m.textContent=T('title.unlocked');m.removeAttribute('title')}
+ let hs=document.getElementById('hs');if(s&&s.best){if(!hs){document.querySelector('.tag').insertAdjacentHTML('afterend','<p class="tag" id="hs" style="color:#FFD400"></p>');hs=document.getElementById('hs')}hs.textContent=T('title.best',{n:(+s.best).toLocaleString()})}
+ window.EMU.title=T('title.emu');EMUCART.title(window.EMU.title)}
+window.EMU={title:'SNACKMAN',start:go};
+SNK.boot();SNK.onChange(render);
+HWSave.load('snackman').then(s=>{save=s;render()});document.getElementById('go').onclick=go;
 addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&document.activeElement.tagName!=='A'){e.preventDefault();go()}});
-window.EMU={title:'SNACKMAN',start:go};EMUCART.title('SNACKMAN');
 </script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body></html>

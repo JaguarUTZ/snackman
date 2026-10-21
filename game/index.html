@@ -6,8 +6,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shared/emu/shell.css">
 </head><body>
-<div id="emubar"><a href="../" aria-label="Back to the shelf">◀ SHELF</a><span class="t"><span class="led"></span><span id="emutitle">SNACKMAN</span></span><button id="emustart" type="button">START</button><button id="emupause" type="button" aria-label="Pause">❚❚</button><button id="emufs" type="button" aria-label="Fullscreen">⛶</button></div>
+<div id="emubar"><a href="../" aria-label="Back to the shelf" data-i18n="frame.shelf" data-i18n-attr="aria-label:frame.shelfAria">◀ SHELF</a><span class="t"><span class="led"></span><span id="emutitle">SNACKMAN</span></span><button id="emustart" type="button" data-i18n="frame.start">START</button><button id="emupause" type="button" aria-label="Pause" data-i18n-attr="aria-label:frame.pause">❚❚</button><button id="emufs" type="button" aria-label="Fullscreen" data-i18n-attr="aria-label:frame.fs">⛶</button></div>
 <div id="emuscr"><div id="emuboot"><div class="l1">HOWARD WOODS<br>INTERACTIVE</div><div class="l2">PITCHING SYSTEM</div></div>
 <iframe id="emuframe" src="cart/title.html" title="Snackman" allow="fullscreen; autoplay"></iframe></div>
 <script src="../shared/emu/shell.js"></script>
+<script src="shared/vendor/jaguarutz-kit.js"></script><script src="shared/i18n/strings.js"></script>
+<script>/* language pill (JaguarUTZ kit): lives in the console bar, top right; the cart iframe follows via postMessage */
+SNK.relay(document.getElementById('emuframe'));SNK.boot({corner:'tr'});
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../shared/hub/clicks.js" data-game="snackman"></script><link rel="stylesheet" href="../shared/hub/hub.css"><script src="../shared/hub/common.js"></script><script src="../shared/hub/game.js"></script><script src="../shared/hub/visit.js"></script></body></html>
