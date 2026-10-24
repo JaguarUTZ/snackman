@@ -10,5 +10,6 @@ function toggle(v){const E=window.EMU||{};paused=v===undefined?!paused:v;if(!E.o
 addEventListener('message',e=>{if(e.origin!==location.origin||!e.data||!e.data.emu)return;const E=window.EMU||{};
  if(e.data.emu==='pause')toggle();
  else if(e.data.emu==='start'){if(paused){toggle(false);return}try{E.start&&E.start()}catch(x){console.warn(x)}}});
+addEventListener('pointerdown',()=>{try{parent!==window&&parent.postMessage({emuTap:1},location.origin)}catch(e){}},true);
 window.EMUCART={toggle,get paused(){return paused},title(t){try{parent.postMessage({emuTitle:t},location.origin)}catch(e){}}};
 })();

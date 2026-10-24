@@ -13,5 +13,15 @@ fs.onclick=()=>{const d=document.documentElement;
 scr.addEventListener('load',()=>{focusGame();setTimeout(()=>boot&&boot.classList.add('off'),900)});
 addEventListener('keydown',e=>{ /* keys pressed while the shell has focus go to the game */
  if(e.target.closest&&e.target.closest('#emubar'))return;focusGame()});
-addEventListener('message',e=>{if(e.origin!==location.origin||!e.data)return;if(e.data.emuTitle)document.getElementById('emutitle').textContent=e.data.emuTitle});
+/* ◀ SHELF guard (2026-10-24 bounce fix): the link sits in the top bar next to START, so a fast or auto tap during play used to
+   drop players back on the shelf. While a cart other than the title screen runs, the first tap only arms it (label "◀ LEAVE?");
+   a second tap 0.35-4 s later leaves. Any tap in the game, or a quick double-fire, does not count. On the title screen one tap leaves. */
+const sh=document.querySelector('#emubar a[href="../"]');let armAt=0,armT=0;
+const shT=(k,d)=>{try{return window.SNK&&SNK.t?SNK.t(k):d}catch(e){return d}};
+const inPlay=()=>{try{return !/\/cart\/title\.html$/.test(scr.contentWindow.location.pathname)}catch(e){return true}};
+function disarm(){if(!armAt)return;armAt=0;clearTimeout(armT);if(sh){sh.classList.remove('arm');sh.textContent=shT('frame.shelf','◀ SHELF')}}
+if(sh){sh.addEventListener('click',e=>{if(!inPlay())return;const now=Date.now();if(armAt&&now-armAt>=350)return;e.preventDefault();
+  if(!armAt){armAt=now;sh.classList.add('arm');sh.textContent=shT('frame.shelfConfirm','◀ LEAVE?');armT=setTimeout(disarm,4000)}});
+ document.addEventListener('pointerdown',e=>{if(armAt&&!sh.contains(e.target))disarm()},true);addEventListener('jutz:lang',disarm)}
+addEventListener('message',e=>{if(e.origin!==location.origin||!e.data)return;if(e.data.emuTap){disarm();return}if(e.data.emuTitle)document.getElementById('emutitle').textContent=e.data.emuTitle});
 })();

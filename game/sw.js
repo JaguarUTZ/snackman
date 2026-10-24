@@ -1,6 +1,6 @@
 /* Snackman offline cache (network first, cache fallback). After one online visit the whole game, the vendored
    language kit and the string tables keep working on a train with no signal. Bump V to drop old caches. */
-const V = 'snackman-v2'; // v2 2026-10-24: kit 1.1.2
+const V = 'snackman-v3'; // v2 2026-10-24: kit 1.1.2 · v3 2026-10-24: bounce fix (SHELF guard, PPSLayer)
 const CORE = ['./', 'index.html', 'shared/vendor/jaguarutz-kit.js', 'shared/i18n/strings.js',
   'cart/title.html', 'cart/prologue.html', 'cart/levels.html', 'cart/bonus3d.html',
   'cart/bid-game.js', 'cart/levels.js', 'cart/bonus3d.js', 'cart/three.module.min.js', 'cart/cover7.webp',

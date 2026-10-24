@@ -15,6 +15,7 @@ en: {
   // ---------- console frame (game/index.html) + pause overlay (shared/emu/cart.js)
   'frame.shelf': '◀ SHELF',
   'frame.shelfAria': 'Back to the shelf',
+  'frame.shelfConfirm': '◀ LEAVE?',
   'frame.start': 'START',
   'frame.pause': 'Pause',
   'frame.fs': 'Fullscreen',
@@ -277,6 +278,7 @@ en: {
 es: {
   'frame.shelf': '◀ MENÚ',
   'frame.shelfAria': 'Volver a la lista de juegos',
+  'frame.shelfConfirm': '◀ ¿SALIR?',
   'frame.start': 'START',
   'frame.pause': 'Pausa',
   'frame.fs': 'Pantalla completa',
@@ -534,6 +536,7 @@ es: {
 it: {
   'frame.shelf': '◀ MENU',
   'frame.shelfAria': 'Torna alla lista dei giochi',
+  'frame.shelfConfirm': '◀ USCIRE?',
   'frame.start': 'START',
   'frame.pause': 'Pausa',
   'frame.fs': 'Schermo intero',

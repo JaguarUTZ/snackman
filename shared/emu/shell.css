@@ -5,6 +5,7 @@ body{display:flex;flex-direction:column;font:400 9px/1 'Press Start 2P',ui-monos
 #emubar{flex:none;display:flex;align-items:center;gap:6px;padding:max(6px,env(safe-area-inset-top)) 8px 6px;background:#0d0d0d;border-bottom:2px solid #1c1c1c}
 #emubar a,#emubar button{font:inherit;color:#d8d8d8;background:#161616;border:2px solid #2c2c2c;border-radius:4px;padding:7px 8px;cursor:pointer;text-decoration:none;white-space:nowrap}
 #emubar a:hover,#emubar button:hover{border-color:#FFD400;color:#FFD400}
+#emubar a.arm,#emubar a.arm:hover{background:#F83800;border-color:#FCFCFC;color:#FCFCFC}
 #emubar #emustart{color:#000;background:#FFD400;border-color:#FFD400}
 #emubar .t{flex:1;text-align:center;color:#666;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #emubar .led{display:inline-block;width:7px;height:7px;border-radius:50%;background:#e03131;box-shadow:0 0 6px #e03131;margin-right:6px;vertical-align:0}

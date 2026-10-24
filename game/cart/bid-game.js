@@ -4,13 +4,22 @@
    Idle: the interceptor works harder and harder (visibly tiring as costs climb); at TK a friendly HANDOVER plays (EcoAlquimia arrives, fist bump, "YOU DID A GOOD JOB, BUDDY. LET ME HANDLE IT FROM HERE.", the interceptor rests on a beach chair). drop(total): the BID act; power scales with total/threshold.
    Sound: BidGame.sound (Web Audio). Starts muted; the first click/keypress enables it (unless the visitor chose OFF, stored in localStorage 'ppsBidSound').
    BidGame.sound.bind(buttonEl) wires a toggle button; .toggle(); .setActive(bool) fades out when the game is off-screen. Tracks: CFG.audio above. */
-/* PPSLayer: history-aware overlay stack. Opening a layer pushes a history entry; Back (popstate) closes the top layer instead of leaving the page. */
-window.PPSLayer=window.PPSLayer||(function(){const st=[];let skip=0;
+/* PPSLayer: history-aware overlay stack. Opening a layer pushes a history entry; Back (popstate) closes the layers above the entry Back landed on.
+   2026-10-24 bounce fix: the old stack counted popstates (skip) and stepped back by its own count, so after a 2-layer close (present + fullscreen)
+   or a layer closed without its entry, it drifted from the real history: a later close stepped back onto an old entry (the page jumped to the
+   landing screen) or right off the page (visitors bounced to the previous site). Now every popstate resyncs from history.state (entries are
+   tagged per page load), done() only steps back over this page's own layer entries (never off the page), closes the layers it drops, and keeps
+   the scroll where it is while it steps back. */
+window.PPSLayer=window.PPSLayer||(function(){const st=[],K='L'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);let sr=null,srT=0;
+ const depthOf=s=>s&&s.ppsK===K&&s.n>0?s.n:0;
  function sync(){if(typeof window.PPSOnPop==='function')window.PPSOnPop()}
- addEventListener('popstate',()=>{if(skip>0){skip--;sync();return}const top=st.pop();if(top){try{top.close()}catch(e){console.warn(e)}}sync()});
+ function srFree(){clearTimeout(srT);try{if(sr!==null)history.scrollRestoration=sr}catch(e){}sr=null}
+ function srHold(){try{if(sr===null){sr=history.scrollRestoration;history.scrollRestoration='manual'}}catch(e){}clearTimeout(srT);srT=setTimeout(srFree,1500)}
+ addEventListener('popstate',e=>{const d=depthOf(e.state);while(st.length>d){const top=st.pop();try{top.close()}catch(x){console.warn(x)}}if(sr!==null){clearTimeout(srT);srT=setTimeout(srFree,150)}sync()});
  return {
-  push(name,close){if(st.some(x=>x.name===name))return;st.push({name,close});try{history.pushState({pps:name,n:st.length},'',location.href)}catch(e){}},
-  done(name){const i=st.map(x=>x.name).lastIndexOf(name);if(i<0)return;const n=st.length-i;st.splice(i);skip+=n;history.go(-n)},
+  push(name,close){if(st.some(x=>x.name===name))return;st.push({name,close});try{history.pushState({pps:name,n:st.length,ppsK:K},'',location.href)}catch(e){}},
+  done(name){const i=st.map(x=>x.name).lastIndexOf(name);if(i<0)return;const up=st.splice(i).slice(1).reverse();up.forEach(x=>{try{x.close()}catch(e){console.warn(e)}});
+   const back=depthOf(history.state)-i;if(back>0){srHold();history.go(-back)}},
   has(name){return st.some(x=>x.name===name)},get depth(){return st.length}};
 })();
 (function(){
