@@ -5,10 +5,15 @@
 <title>Snackman · Howard Woods Interactive Pitching System</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shared/emu/shell.css">
+<style>/* loop links (QA loops 2026-10-25): slim bottom strip, far from START (top bar); opens a new tab so a run is never lost; hidden in fullscreen */
+#emuloop{flex:none;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:5px 10px calc(5px + env(safe-area-inset-bottom,0px));background:#0d0d0d;border-top:2px solid #1c1c1c;font:400 14px/1.2 'Press Start 2P',ui-monospace,monospace}
+#emuloop a{color:#9a9a9a;text-decoration:none;padding:4px 2px;white-space:nowrap}#emuloop a:hover,#emuloop a:focus-visible{color:#FFD400}
+body.fs #emuloop{display:none}</style>
 </head><body>
 <div id="emubar"><a href="../" aria-label="Back to the shelf" data-i18n="frame.shelf" data-i18n-attr="aria-label:frame.shelfAria">◀ SHELF</a><span class="t"><span class="led"></span><span id="emutitle">SNACKMAN</span></span><button id="emustart" type="button" data-i18n="frame.start">START</button><button id="emupause" type="button" aria-label="Pause" data-i18n-attr="aria-label:frame.pause">❚❚</button><button id="emufs" type="button" aria-label="Fullscreen" data-i18n-attr="aria-label:frame.fs">⛶</button></div>
 <div id="emuscr"><div id="emuboot"><div class="l1">HOWARD WOODS<br>INTERACTIVE</div><div class="l2">PITCHING SYSTEM</div></div>
 <iframe id="emuframe" src="cart/title.html" title="Snackman" allow="fullscreen; autoplay"></iframe></div>
+<nav id="emuloop" aria-label="More games"><a href="https://snackman.forkashi.com/" target="_blank" rel="noopener">◀ Snackman</a><a href="https://bluefire.love/" target="_blank" rel="noopener">Blue Fire ▸</a></nav>
 <script src="../shared/emu/shell.js"></script>
 <script src="shared/vendor/jaguarutz-kit.js"></script><script src="shared/i18n/strings.js"></script>
 <script>/* language pill (JaguarUTZ kit): lives in the console bar, top right; the cart iframe follows via postMessage */

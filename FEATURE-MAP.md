@@ -10,6 +10,7 @@ Not this repo: snackman.forkashi.com (EcoAlquimia business page, forkashi-progre
 | Title screen + continue | `game/cart/title.html` | Tap ▶ PRESS START. With a save, it reads ▶ CONTINUE LV2/3 or MASTER LEVEL. |
 | Stage select (Prologue, LV1–3, Bonus 3D; Master locked until LV3) | `game/cart/title.html` | Under PRESS START, tap any stage. 🔒 MASTER LEVEL stays dim until unlocked. |
 | ◂ SHELF back to game list | `game/index.html`, `index.html` | Tap ◂ SHELF top left. Lands on the shelf page. |
+| Loop links strip (◀ Snackman → snackman.forkashi.com, Blue Fire ▸ → bluefire.love; new tab, hidden in fullscreen) | `game/index.html` | Open /game/ (and ?cart=bonus3d). Strip sits at the bottom, away from START. Tap ◀ Snackman: the pitch opens in a new tab, the game keeps running. |
 | Prologue: put a bid on plastic | `game/cart/prologue.html`, `game/cart/bid-game.js`, `game/cart/audio/*` | Tap ▶ PLAY SNACKMAN, then Ⓐ PUT A BID. LEVEL 1 ▶ shows after the drop (auto at 26 s). |
 | Levels 1–3 maze chomper (30 s each) | `game/cart/levels.html`, `game/cart/levels.js` | Swipe to eat. Ghost hit costs 3 s. LV1 Sort+Wash, LV2 Wah Wah pyrolysis, LV3 Partner Chain. |
 | Autoplay | `game/cart/levels.js` (`setAuto`, `watchStart`) | Tap ▶ WATCH, or wait 8 s idle. Button turns ● AUTO. |
