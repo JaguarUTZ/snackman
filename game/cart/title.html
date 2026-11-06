@@ -20,6 +20,7 @@ img{width:min(60vw,38vh);image-rendering:pixelated}
 .lk{opacity:.45;border-style:dashed!important}
 </style>
 <script src="../../shared/emu/cart.js"></script>
+<script src="https://jaguarutz-kit.vercel.app/kit.js"></script>
 </head><body><main>
 <div class="logo">SNACKMAN</div>
 <img src="a/snackman.gif" alt="Snackman: a yellow chomper with a green hard hat" data-i18n-attr="alt:title.alt">
@@ -41,4 +42,7 @@ window.EMU={title:'SNACKMAN',start:go};
 SNK.boot();SNK.onChange(render);
 HWSave.load('snackman').then(s=>{save=s;render()});document.getElementById('go').onclick=go;
 addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&document.activeElement.tagName!=='A'){e.preventDefault();go()}});
-</script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script></body></html>
+</script><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script src="../../shared/hub/clicks.js" data-game="snackman"></script><a href="https://games.forkashi.com" data-fk-flip aria-label="8-bit Forkashi: change the channel" title="8-bit Forkashi: change the channel"><img src="/art/forkashi-8bit.gif" width="48" height="45" alt="8-bit Forkashi"></a>
+<script src="https://jaguarutz-kit.vercel.app/flip.js" defer></script>
+<script>try{JUTZ.sound.button({key:"snackman-sound-mode",corner:"tr"})}catch(e){}</script>
+</body></html>
